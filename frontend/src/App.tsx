@@ -18,7 +18,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/ticket-details" element={<TicketDetailsPage />} /> {/* to be "/ticket-{ticket_id}-details" */}
         <Route path="/" element={<IntroPage />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
 
@@ -32,11 +31,12 @@ function App() {
               path="/tickets"
               element={
                 <TicketTablePage
-                  user_id={user.userId}
-                  username={user.username}
+                user_id={user.userId}
+                username={user.username}
                 />
               }
             />
+            <Route path="/ticket-details" element={<TicketDetailsPage />} /> {/* to be "/ticket-{ticket_id}-details" */}
           </>
         ) : (
           <>
