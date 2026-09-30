@@ -7,12 +7,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IntroPage from "./components/IntroPage";
 
 function App() {
- return (
+  return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LoginFormPage />} />
         <Route path="/home" element={<IntroPage />} />
-        <Route path="/create-ticket" element={<CreateTicketForm />} />
+        <Route
+          path="/create-ticket"
+          element={<CreateTicketFormPage user_id={2} />}
+        />
       </Routes>
     </BrowserRouter>
   );
