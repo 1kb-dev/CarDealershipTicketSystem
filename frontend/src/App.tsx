@@ -28,7 +28,12 @@ function App() {
             />
             <Route
               path="/tickets"
-              element={<TicketTablePage user_id={user.userId} />}
+              element={
+                <TicketTablePage
+                  user_id={user.userId}
+                  username={user.username}
+                />
+              }
             />
           </>
         ) : (
