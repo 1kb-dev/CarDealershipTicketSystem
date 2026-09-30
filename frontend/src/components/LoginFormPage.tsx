@@ -1,21 +1,21 @@
 import { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent } from "react";
 // Adjust the path to match your project structure.
 import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
 
-const COMPANY_NAME = "Car Ticket Service";
+const COMPANY_NAME = "AA Car Dealership";
 
 const LoginFormPage = () => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useLogin({
-    onSuccess: () => navigate("/home"),
+    onSuccess: () => navigate("/"),
   });
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isLoading) return;
     void login({ email, password });
