@@ -1,7 +1,11 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import type { User } from "../App";
 
 // Change this to match your Go server's route.
 const LOGIN_URL = "/api/auth/login";
+
+// Set to false once the backend is ready.
+const USE_MOCK = true;
 
 export interface LoginCredentials {
   email: string;
@@ -10,14 +14,18 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   message: string;
+  username: string;
+  userId: number | null;
 }
 
 interface ApiBody {
   message?: string;
+  username?: string;
+  userId?: number | null;
 }
 
 interface UseLoginOptions {
-  onSuccess?: (data: LoginResponse) => void;
+  onSuccess?: (user: User) => void;
 }
 
 interface UseLoginResult {
@@ -32,51 +40,60 @@ export const useLogin = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async ({ email, password }: LoginCredentials) => {
+  const login = async ({
+    email,
+    password,
+  }: LoginCredentials): Promise<LoginResponse | undefined> => {
     setIsLoading(true);
     setError(null);
 
-    // Mock
-
-    const result: LoginResponse = {
-      message: "Login successful",
-    };
-
-    onSuccess?.(result);
-
     try {
-      const response = await fetch(LOGIN_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+      let result: LoginResponse;
 
-      const data: ApiBody | null = await response.json().catch(() => null);
+      if (USE_MOCK) {
+        result = {
+          message: "Login successful",
+          userId: 2,
+          username: "john_doe",
+        };
+      } else {
+        const response = await fetch(LOGIN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
 
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 400) {
+        const data: ApiBody | null = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 400) {
+            throw new Error(
+              data?.message ||
+                "Incorrect email or password. Check your details and try again.",
+            );
+          }
+          if (response.status === 429) {
+            throw new Error(
+              "Too many attempts. Wait a few minutes and try again.",
+            );
+          }
           throw new Error(
             data?.message ||
-              "Incorrect email or password. Check your details and try again.",
+              "Something went wrong on our side. Try again shortly.",
           );
         }
-        if (response.status === 429) {
-          throw new Error(
-            "Too many attempts. Wait a few minutes and try again.",
-          );
-        }
-        throw new Error(
-          data?.message ||
-            "Something went wrong on our side. Try again shortly.",
-        );
+
+        result = {
+          message: data?.message ?? "Login successful",
+          username: data?.username ?? "user",
+          userId: data?.userId ?? null,
+        };
       }
 
-      const result: LoginResponse = {
-        message: data?.message ?? "Login successful",
-      };
-
-      onSuccess?.(result);
+      if (result.userId !== null) {
+        onSuccess?.({ userId: result.userId, username: result.username });
+      }
       return result;
     } catch (err: unknown) {
       if (err instanceof TypeError) {
@@ -88,6 +105,7 @@ export const useLogin = ({
       } else {
         setError("Something went wrong. Try again.");
       }
+      return undefined;
     } finally {
       setIsLoading(false);
     }
