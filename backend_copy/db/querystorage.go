@@ -1,0 +1,165 @@
+package db
+
+import "database/sql"
+
+const ViewBlacklists = `
+	SELECT STUDENT_ID, FULL_NAME
+	FROM OWL_LENDREG.VBLACKLISTS
+	WHERE BLACKLIST = 1
+`
+
+const ViewOverdue = `
+	SELECT
+		STUDENT_ID,
+		SELECTION_ID,
+		FULL_NAME,
+		COMPUTER,
+		SERIAL,
+		MOUSE_SERIAL,
+		LEND_EXPIRE,
+		RETURN_DATE
+	FROM OWL_LENDREG.VOVERDUE
+`
+
+// LEND_EXPIRE, RETURN_DATE (BACKEND)
+const ViewReturns = `
+	SELECT
+		STUDENT_ID,
+		SELECTION_ID,
+		FULL_NAME,
+		COMPUTER,
+		SERIAL,
+		MOUSE_SERIAL,
+		LEND_EXPIRE,
+		RETURN_DATE
+	FROM OWL_LENDREG.VRETURNS
+`
+
+// LEND_EXPIRE AS RETURN_DATE (UX)
+const ViewLends = `
+	SELECT
+		STUDENT_ID,
+		SELECTION_ID,
+		FULL_NAME,
+		COMPUTER,
+		SERIAL,
+		MOUSE_SERIAL,
+		RETURN_DATE
+	FROM OWL_LENDREG.VLENT
+`
+
+const SuggestStudents = `
+	SELECT STUDENT_ID, FULL_NAME
+	FROM OWL_LENDREG.VSTUDENTS
+	WHERE LOWER(FULL_NAME) LIKE LOWER(:1)
+	FETCH FIRST 10 ROWS ONLY
+`
+
+const SuggestSerials = `
+	SELECT SERIAL, COMPUTER
+	FROM OWL_LENDREG.VPERIPHERAL
+	WHERE LOWER(SERIAL) LIKE LOWER(:1)
+		OR LOWER(COMPUTER) LIKE LOWER(:2)
+	FETCH FIRST 10 ROWS ONLY
+`
+
+const StudentIdFromName = `
+	SELECT STUDENT_ID
+	FROM OWL_LENDREG.VSTUDENTS
+	WHERE FULL_NAME = :1
+`
+
+const SelectionIdFromSerial = `
+	SELECT SELECTION_ID
+	FROM OWL_LENDREG.VPERIPHERAL
+	WHERE SERIAL = :1
+`
+
+const FindUserByUsernameOrEmail = `
+	SELECT ID, USERNAME, EMAIL, PASSWORD, KEY
+	FROM OWL_LENDREG.USERS
+	WHERE USERNAME = :1 OR EMAIL = :2
+`
+
+const CheckIsReturned = `
+	SELECT 1
+	FROM OWL_LENDREG.LEND
+	WHERE STUDENT_ID = :1
+		AND SELECTION_ID = :2
+		AND LEND_EXPIRE = TO_TIMESTAMP(:3, 'YYYY-MM-DD HH24:MI:SS.FF3')
+		AND RETURN_DATE IS NOT NULL
+`
+
+const CheckExistingLend = `
+	SELECT 1
+	FROM OWL_LENDREG.LEND
+	WHERE STUDENT_ID = :1
+		AND SELECTION_ID = :2
+		AND RETURN_DATE IS NULL
+`
+
+const CheckUsernameAvailability = `
+	SELECT USERNAME
+	FROM OWL_LENDREG.USERS
+	WHERE USERNAME = :1
+`
+
+const CheckIfEmailAlreadyRegistered = `
+	SELECT EMAIL
+	FROM OWL_LENDREG.USERS
+	WHERE EMAIL = :1
+`
+
+const InsertLend = `
+	INSERT INTO OWL_LENDREG.LEND (STUDENT_ID, SELECTION_ID, LEND_EXPIRE)
+    VALUES (:1, :2, TO_TIMESTAMP(:3, 'YYYY-MM-DD HH24:MI:SS.FF3'))
+`
+
+const InsertUser = `
+	INSERT INTO OWL_LENDREG.USERS (USERNAME, EMAIL, PASSWORD, KEY)
+	VALUES (:1, :2, :3, :4)
+`
+
+const AddReturnDate = `
+	UPDATE OWL_LENDREG.LEND
+	SET RETURN_DATE = CURRENT_TIMESTAMP
+	WHERE STUDENT_ID = :1
+		AND SELECTION_ID = :2
+		AND LEND_EXPIRE = TO_TIMESTAMP(:3, 'YYYY-MM-DD HH24:MI:SS.FF3')
+`
+
+const RemoveReturnDate = `
+	UPDATE OWL_LENDREG.LEND
+	SET RETURN_DATE = NULL
+	WHERE STUDENT_ID = :1
+		AND SELECTION_ID = :2
+		AND LEND_EXPIRE = TO_TIMESTAMP(:3, 'YYYY-MM-DD HH24:MI:SS.FF3')
+		AND RETURN_DATE = TO_TIMESTAMP(:4, 'YYYY-MM-DD HH24:MI:SS.FF3')
+`
+
+// Specific identifiers to ensure the correct one is deleted
+const DeleteReturnedLendRecord = `
+	DELETE FROM OWL_LENDREG.LEND
+	WHERE ROWID IN (
+		SELECT ROWID
+		FROM OWL_LENDREG.LEND
+		WHERE STUDENT_ID = :1
+			AND SELECTION_ID = :2
+			AND LEND_EXPIRE = TO_TIMESTAMP(:3, 'YYYY-MM-DD HH24:MI:SS.FF3')
+			AND RETURN_DATE = TO_TIMESTAMP(:4, 'YYYY-MM-DD HH24:MI:SS.FF3')
+		FETCH FIRST 1 ROW ONLY
+	)
+`
+
+// Allow query calls from handlers
+func Query(query string, args ...interface{}) (*sql.Rows, error) {
+	return db.Query(query, args...)
+}
+
+func QueryRow(query string, args ...interface{}) *sql.Row {
+	return db.QueryRow(query, args...)
+}
+
+func Exec(query string, args ...interface{}) (sql.Result, error) {
+	return db.Exec(query, args...)
+}
