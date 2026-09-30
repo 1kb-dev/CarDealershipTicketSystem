@@ -1,11 +1,12 @@
 import { useState } from "react";
 import "./App.css";
-import LoginPage from "./components/loginPage";
-import CreateTicketForm from "./components/CreateTicketForm";
+import LoginFormPage from "./components/LoginFormPage";
+import CreateTicketFormPage from "./components/CreateTicketFormPage";
+import TicketTablePage from "./components/TicketTablePage";
 
 function App() {
   return (
-      <LoginPage />
+      <LoginFormPage />
   );
 }
 
