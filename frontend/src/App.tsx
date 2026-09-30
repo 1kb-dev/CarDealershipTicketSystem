@@ -12,10 +12,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginFormPage />} />
         <Route path="/home" element={<IntroPage />} />
-        <Route
-          path="/create-ticket"
-          element={<CreateTicketFormPage user_id={2} />}
-        />
+        <Route path="/create-ticket" element={<CreateTicketFormPage user_id={0} />} />
+        <Route path="/tickets" element={<TicketTablePage />}/>
       </Routes>
     </BrowserRouter>
   );
