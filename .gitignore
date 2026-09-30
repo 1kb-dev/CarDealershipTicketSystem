@@ -1,6 +1,6 @@
 # Packages
-node_modules
+frontend/node_modules
 
 # Lock files
-*.lock
-*lock.json
+frontend/*.lock
+frontend/*lock.json
