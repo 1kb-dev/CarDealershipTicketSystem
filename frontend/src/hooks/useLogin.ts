@@ -36,6 +36,14 @@ export const useLogin = ({
     setIsLoading(true);
     setError(null);
 
+    // Mock
+
+    const result: LoginResponse = {
+      message: "Login successful",
+    };
+
+    onSuccess?.(result);
+
     try {
       const response = await fetch(LOGIN_URL, {
         method: "POST",

@@ -2,11 +2,15 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 // Adjust the path to match your project structure.
 import { useLogin } from "../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 const COMPANY_NAME = "Car Ticket Service";
 
 const LoginFormPage = () => {
-  const { login, isLoading, error } = useLogin();
+  const navigate = useNavigate();
+  const { login, isLoading, error } = useLogin({
+    onSuccess: () => navigate("/home"),
+  });
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
