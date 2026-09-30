@@ -5,7 +5,7 @@ import { useLogin } from "../hooks/useLogin";
 
 const COMPANY_NAME = "Car Ticket Service";
 
-const LoginPage = () => {
+const LoginFormPage = () => {
   const { login, isLoading, error } = useLogin();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -176,4 +176,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginFormPage;
