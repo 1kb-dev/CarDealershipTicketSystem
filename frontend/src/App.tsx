@@ -5,9 +5,7 @@ import CreateTicketForm from "./components/CreateTicketForm";
 
 function App() {
   return (
-    <>
       <LoginPage />
-    </>
   );
 }
 
