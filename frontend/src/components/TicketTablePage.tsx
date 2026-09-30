@@ -10,8 +10,8 @@ interface Ticket {
 }
 
 interface TicketTableProps {
-    user_id?: number
-    username?: string
+    user_id: number
+    username: string
 }
 
 type TicketFilter = 'all' | 'yours' | 'user'
@@ -22,7 +22,7 @@ const tickets: Ticket[] = [
     { priority_level: 3, ticket_id: 1046, user_id: 17, username: 'jordan.lee', category: 'General question', subject: 'Question about support coverage' },
 ]
 
-const TicketTable = ({ user_id = 17, username = 'Jordan Lee' }: TicketTableProps) => {
+const TicketTable = ({ user_id, username }: TicketTableProps) => {
     const [filter, setFilter] = useState<TicketFilter>('all')
     const [userFilter, setUserFilter] = useState('')
     const accountMenuRef = useRef<HTMLDetailsElement>(null)

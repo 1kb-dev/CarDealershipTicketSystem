@@ -7,15 +7,49 @@ import TicketTablePage from "./components/TicketTablePage";
 import TicketDetailsPage from "./components/TicketDetailsPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+export interface User {
+  userId: number;
+  username: string;
+}
+
 function App() {
+  const [user, setUser] = useState<User | null>(null);
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<IntroPage />} />
-        <Route path="/login" element={<LoginFormPage />} />
-        <Route path="/create-ticket" element={<CreateTicketFormPage user_id={0} />} />
-        <Route path="/tickets" element={<TicketTablePage />}/>
         <Route path="/ticket-details" element={<TicketDetailsPage />} /> {/* to be "/ticket-{ticket_id}-details" */}
+        <Route path="/" element={<IntroPage />} />
+        <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
+
+        {user ? (
+          <>
+            <Route
+              path="/create-ticket"
+              element={<CreateTicketFormPage user_id={user.userId} />}
+            />
+            <Route
+              path="/tickets"
+              element={
+                <TicketTablePage
+                  user_id={user.userId}
+                  username={user.username}
+                />
+              }
+            />
+          </>
+        ) : (
+          <>
+            <Route
+              path="/create-ticket"
+              element={<LoginFormPage setUser={setUser} />}
+            />
+            <Route
+              path="/tickets"
+              element={<LoginFormPage setUser={setUser} />}
+            />
+          </>
+        )}
       </Routes>
     </BrowserRouter>
   );

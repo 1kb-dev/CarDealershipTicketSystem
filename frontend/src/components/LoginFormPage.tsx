@@ -3,13 +3,21 @@ import type { ChangeEvent } from "react";
 // Adjust the path to match your project structure.
 import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
+import type { User } from "../App";
 
 const COMPANY_NAME = "AA Car Dealership";
 
-const LoginFormPage = () => {
+interface LoginFormPageProps {
+  setUser: (user: User | null) => void;
+}
+
+const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useLogin({
-    onSuccess: () => navigate("/"),
+    onSuccess: (user) => {
+      setUser(user);
+      navigate("/");
+    },
   });
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
