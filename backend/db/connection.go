@@ -36,7 +36,7 @@ func Connect() {
 
 	var err error
 	dsn := "postgresql://" + user + ":" + passwd + "@" + host + ":" + port + "/" + service
-	db, err = sql.Open("godror", dsn)
+	db, err = sql.Open("pgx", dsn)
 	if err != nil {
 		log.Fatalf("unable to open DB: %v", err)
 	}
