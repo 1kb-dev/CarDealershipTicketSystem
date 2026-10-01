@@ -26,7 +26,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isLoading) return;
-    void login({ email, password });
+    void login({ UsernameOrEmail: email, password });
   };
 
   return (

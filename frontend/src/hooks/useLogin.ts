@@ -2,13 +2,13 @@ import { useState } from "react";
 import type { User } from "../App";
 
 // Change this to match your Go server's route.
-const LOGIN_URL = "/api/auth/login";
+const LOGIN_URL = "/api/login";
 
 // Set to false once the backend is ready.
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export interface LoginCredentials {
-  email: string;
+  UsernameOrEmail: string;
   password: string;
 }
 
@@ -41,7 +41,7 @@ export const useLogin = ({
   const [error, setError] = useState<string | null>(null);
 
   const login = async ({
-    email,
+    UsernameOrEmail,
     password,
   }: LoginCredentials): Promise<LoginResponse | undefined> => {
     setIsLoading(true);
@@ -61,7 +61,7 @@ export const useLogin = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ usernameOrEmail: UsernameOrEmail, password }),
         });
 
         const data: ApiBody | null = await response.json().catch(() => null);
