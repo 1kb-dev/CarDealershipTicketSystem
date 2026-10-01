@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"data-access/db"
-	"data-access/domain"
+	"backend/db"
+	"backend/domain"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
