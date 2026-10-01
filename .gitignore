@@ -4,3 +4,4 @@ frontend/node_modules
 # Lock files
 frontend/*.lock
 frontend/*lock.json
+.env
