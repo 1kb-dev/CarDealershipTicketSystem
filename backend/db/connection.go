@@ -3,12 +3,11 @@ package db
 import (
 	"database/sql"
 	"log"
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // replaces godror
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 )
 
@@ -26,14 +25,6 @@ func Connect() {
 	host := os.Getenv("DBHOST")
 	port := os.Getenv("DBPORT")
 
-	u := url.URL{
-		Scheme:   "postgres",
-		User:     url.UserPassword(user, passwd),
-		Host:     host + ":" + port,
-		Path:     dbname,
-		RawQuery: "sslmode=disable",
-	}
-
 	var err error
 	dsn := "postgresql://" + user + ":" + passwd + "@" + host + ":" + port + "/" + service
 	db, err = sql.Open("pgx", dsn)
@@ -45,9 +36,9 @@ func Connect() {
 		log.Fatalf("unable to ping DB: %v", err)
 	}
 
-	log.Println("Connected! >>> [" + dbname + "]")
+	log.Println("Connected! >>> [" + service + "]")
 
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
 	db.SetConnMaxIdleTime(1 * time.Minute)
 }
