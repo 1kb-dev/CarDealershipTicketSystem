@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"data-access/db"
-	"data-access/domain"
-	jwtauth "data-access/jwt-authentication"
-	"data-access/middleware"
+	"backend/db"
+	"backend/domain"
+	jwtauth "backend/jwt-authentication"
+	"backend/middleware"
 	"encoding/json"
 	"log"
 	"net/http"
