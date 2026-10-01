@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS ticket;
-DROP TABLE IF EXISTS app_user;
-DROP TYPE IF EXISTS user_role;
