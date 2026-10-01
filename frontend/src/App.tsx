@@ -31,12 +31,13 @@ function App() {
               path="/tickets"
               element={
                 <TicketTablePage
-                user_id={user.userId}
-                username={user.username}
+                  user_id={user.userId}
+                  username={user.username}
                 />
               }
             />
-            <Route path="/ticket-details" element={<TicketDetailsPage />} /> {/* to be "/ticket-{ticket_id}-details" */}
+            <Route path="/ticket-details" element={<TicketDetailsPage />} />
+            {/* to be "/ticket-{ticket_id}-details" */}
           </>
         ) : (
           <>

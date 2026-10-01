@@ -22,12 +22,12 @@ func Connect() {
 
 	user := os.Getenv("DBUSER")
 	passwd := os.Getenv("DBPASS")
-	service := "XE"
-	host := "127.0.0.1"
-	port := "1521"
+	service := "postgresql"
+	host := os.Getenv("DBHOST")
+	port := os.Getenv("DBPORT")
 
 	var err error
-	dsn := "oracle://" + user + ":" + passwd + "@" + host + ":" + port + "/" + service
+	dsn := "postgresql://" + user + ":" + passwd + "@" + host + ":" + port + "/" + service
 	db, err = sql.Open("godror", dsn)
 	if err != nil {
 		log.Fatalf("unable to open DB: %v", err)
