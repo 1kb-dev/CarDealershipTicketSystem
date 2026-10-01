@@ -5,3 +5,10 @@ frontend/node_modules
 frontend/*.lock
 frontend/*lock.json
 .env
+
+
+# Flyway ignores
+flyway/carDealershipTicketSystemDB/*.user.toml
+flyway/carDealershipTicketSystemDB/*.artifact
+flyway/carDealershipTicketSystemDB/report.html
+flyway/carDealershipTicketSystemDB/report.json

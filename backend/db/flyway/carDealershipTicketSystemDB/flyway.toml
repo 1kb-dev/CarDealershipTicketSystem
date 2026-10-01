@@ -1,0 +1,30 @@
+databaseType = "PostgreSql"
+id = "189bfaec-fea2-4348-8ad2-593c829f6c85"
+name = "carDealershipTicketSystemDB"
+
+[flyway]
+callbackLocations = [ "filesystem:callbacks" ]
+locations = [ "filesystem:migrations" ]
+mixed = true
+outOfOrder = true
+schemaModelLocation = "schema-model"
+validateMigrationNaming = true
+
+[flywayDesktop]
+developmentEnvironment = "development"
+shadowEnvironment = "shadow"
+showDeploymentDecision = true
+
+[redgateCompare]
+filterFile = "filter.rgf"
+
+[redgateCompare.postgresql.options.behavior]
+detectRenames = "identical-only"
+
+[redgateCompare.postgresql.options.ignores]
+ignoreNewlinesInTextObjects = "off"
+
+[environments.ticket_system_db]
+url = "jdbc:postgresql://db.smallbenji.tech:9898/cardb"
+schemas = [ "public" ]
+displayName = "TicketSystemDB"

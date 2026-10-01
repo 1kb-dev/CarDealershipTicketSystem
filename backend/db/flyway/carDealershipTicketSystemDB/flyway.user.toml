@@ -1,0 +1,3 @@
+[environments.ticket_system_db]
+user = "caruser"
+password = "${localSecret.Flyway Desktop 982e6322-8ae7-416f-b7c0-d05ec1a0288c}"
