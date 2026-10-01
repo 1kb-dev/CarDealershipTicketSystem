@@ -14,14 +14,14 @@ import (
 var db *sql.DB
 
 func Connect() {
-	envPath := filepath.Join(".", ".env")
+	envPath := filepath.Join("..", ".env")
 	if err := godotenv.Load(envPath); err != nil {
 		log.Printf("Warning: could not load .env file from %s: %v", envPath, err)
 	}
 
 	user := os.Getenv("DBUSER")
 	passwd := os.Getenv("DBPASS")
-	service := "postgresql"
+	service := os.Getenv("DB")
 	host := os.Getenv("DBHOST")
 	port := os.Getenv("DBPORT")
 
