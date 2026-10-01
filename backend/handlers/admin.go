@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"data-access/middleware"
+	"backend/middleware"
 	"net/http"
 )
 

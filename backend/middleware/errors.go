@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"data-access/db"
-	"data-access/domain"
-	models "data-access/domain"
+	models "backend/domain"
 	"database/sql"
 	"encoding/json"
 	"log"
@@ -52,6 +50,20 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
+func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
+	if err := row.Scan(&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Key); err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return true
+		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return true
+	}
+
+	return false
+}
+
 // Ensures the request is a GET.
 func VerifyIsGetMethod(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method != http.MethodGet {
@@ -82,68 +94,6 @@ func CheckInternalServerStatus(w http.ResponseWriter, err error) bool {
 	return false
 }
 
-// ServeUniversalLendsQuery takes the query string (and any needed args) and handles scan for its parent function
-type LendScanArgs func(*domain.Lend) []interface{}
-
-func ServeUniversalLendsQuery(
-	w http.ResponseWriter,
-	r *http.Request,
-	query string,
-	scanArgs LendScanArgs,
-	requireReturnDate bool,
-	args ...interface{},
-) {
-	if DebugFetch(w, r) {
-		return
-	}
-
-	if !VerifyIsGetMethod(w, r) {
-		return
-	}
-
-	rows, err := db.Query(query, args...)
-	if CheckInternalServerStatus(w, err) {
-		return
-	}
-	defer rows.Close()
-
-	lends := []domain.Lend{}
-	for rows.Next() {
-		var p domain.Lend
-
-		dest := scanArgs(&p)
-		if ValidateLendQueryScan(w, rows, dest...) {
-			return
-		}
-
-		if requireReturnDate && !p.ReturnDateScan.Valid {
-			continue
-		}
-
-		VerifyReturnDateValue(&p)
-
-		lends = append(lends, p)
-	}
-
-	if VerifyRowsQueried(w, rows) {
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(lends)
-}
-
-func VerifyReturnDateValue(p *domain.Lend) {
-	if !p.ReturnDateScan.Valid {
-		p.ReturnDate = nil
-		return
-	}
-
-	t := p.ReturnDateScan.Time
-	p.ReturnDate = &t
-}
-
 // ValidateLendQueryScan ensures lend query results are usable and reports a server error if they're not.
 func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...interface{}) bool {
 	if scanErr := rows.Scan(dest...); scanErr != nil {
@@ -154,38 +104,6 @@ func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...interf
 	return false
 }
 
-func BuildLendScanArgs(p *domain.Lend, includeReturn bool) []interface{} {
-	args := []interface{}{
-		&p.StudentID,
-		&p.SelectionID,
-		&p.FullName,
-		&p.Computer,
-		&p.Serial,
-		&p.MouseSerial,
-		&p.ExpireDate,
-	}
-
-	if includeReturn {
-		args = append(args, &p.ReturnDateScan)
-	}
-
-	return args
-}
-
-// ValidateUserQueryScan validates a user lookup and translates "not found" into an auth error for login flows.
-func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
-	if err := row.Scan(&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Key); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-			return true
-		}
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return true
-	}
-
-	return false
-}
 
 // VerifyRowsQueried checks the iterator for query errors after reading rows.
 func VerifyRowsQueried(w http.ResponseWriter, rows *sql.Rows) bool {

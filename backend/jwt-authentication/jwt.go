@@ -1,7 +1,7 @@
 package jwtauth
 
 import (
-	"data-access/domain"
+	"backend/domain"
 	"errors"
 	"net/http"
 	"os"
