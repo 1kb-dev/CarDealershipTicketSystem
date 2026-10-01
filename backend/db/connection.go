@@ -3,17 +3,17 @@ package db
 import (
 	"database/sql"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
 
-	_ "github.com/godror/godror"
+	_ "github.com/jackc/pgx/v5/stdlib" // replaces godror
 	"github.com/joho/godotenv"
 )
 
 var db *sql.DB
 
-// Application connection to database
 func Connect() {
 	envPath := filepath.Join("..", ".env")
 	if err := godotenv.Load(envPath); err != nil {
@@ -22,25 +22,31 @@ func Connect() {
 
 	user := os.Getenv("DBUSER")
 	passwd := os.Getenv("DBPASS")
-	service := "XE"
-	host := "127.0.0.1"
-	port := "1521"
+	dbname := os.Getenv("DB")
+	host := os.Getenv("HOST")
+	port := os.Getenv("PORT")
+
+	u := url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(user, passwd),
+		Host:     host + ":" + port,
+		Path:     dbname,
+		RawQuery: "sslmode=disable",
+	}
 
 	var err error
-	dsn := "oracle://" + user + ":" + passwd + "@" + host + ":" + port + "/" + service
-	db, err = sql.Open("godror", dsn)
+	db, err = sql.Open("pgx", u.String())
 	if err != nil {
 		log.Fatalf("unable to open DB: %v", err)
 	}
 
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatalf("unable to ping DB: %v", pingErr)
+	if err := db.Ping(); err != nil {
+		log.Fatalf("unable to ping DB: %v", err)
 	}
 
-	log.Println("Connected! >>> [" + service + "]")
+	log.Println("Connected! >>> [" + dbname + "]")
 
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
 	db.SetConnMaxIdleTime(1 * time.Minute)
 }
