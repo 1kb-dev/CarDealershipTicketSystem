@@ -1,0 +1,1 @@
+ALTER TABLE public.app_user DROP COLUMN "role";

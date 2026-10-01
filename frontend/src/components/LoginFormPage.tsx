@@ -23,8 +23,8 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (isLoading) return;
     void login({ email, password });
   };
@@ -96,7 +96,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
                 htmlFor="email"
                 className="block text-sm font-medium text-slate-700"
               >
-                Work email
+                Email
               </label>
               <input
                 id="email"
