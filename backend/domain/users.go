@@ -4,15 +4,13 @@ package domain
 type LoginRequest struct {
 	UsernameOrEmail string `json:"usernameOrEmail"`
 	Password        string `json:"password"`
-	Key             string `json:"key"`
 }
 
 type UserAuth struct {
 	ID           int64
 	Email        string
 	Username     string
-	PasswordHash string
-	Key          string
+	Password string
 }
 
 // handlers.RegisterHandler
@@ -21,4 +19,5 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Key      string `json:"key"`
+	Role     string `json:"role"`
 }
