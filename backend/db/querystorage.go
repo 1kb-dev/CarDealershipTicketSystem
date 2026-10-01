@@ -3,7 +3,7 @@ package db
 import "database/sql"
 
 const FindUserByUsernameOrEmail = `
-	SELECT ID, USERNAME, EMAIL, PASSWORD, KEY
+	SELECT USER_ID, USERNAME, EMAIL, PASSWORD, KEY
 	FROM OWL_LENDREG.USERS
 	WHERE USERNAME = :1 OR EMAIL = :2
 `
