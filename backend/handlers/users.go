@@ -65,7 +65,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"status":   "authenticated",
 		"userId":  u.UserID,
 		"username": u.Username,

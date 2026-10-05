@@ -26,8 +26,9 @@ const FindUserRoleByEmail = `
 
 const InsertTicket = `
 	INSERT INTO public.ticket
-	(ticket_id, user_id, pr, category, subject, issue, claimed_by_user_id)
-	VALUES($1, $2, 5, $3, $4, $5, 0)
+	(user_id, pr, category, platform, subject, issue, claimed_by_user_id)
+	VALUES($1, $2, $3, $4, $5, $6, 0)
+	RETURNING ticket_id
 `
 
 // Allow query calls from handlers
