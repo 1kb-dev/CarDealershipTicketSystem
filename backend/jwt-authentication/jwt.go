@@ -70,6 +70,11 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, err := ValidateJWTFromRequest(r)
+		role, err := GetRoleFromRequest(r)
+		if err != nil || role != "admin" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
 		if err != nil {
 			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
