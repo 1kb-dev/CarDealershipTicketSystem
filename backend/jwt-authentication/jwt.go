@@ -1,9 +1,7 @@
 package jwtauth
 
 import (
-	"backend/db"
 	"backend/domain"
-	"database/sql"
 	"errors"
 	"net/http"
 	"os"
@@ -47,17 +45,6 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 		return errors.New("missing email")
 	}
 
-	err := db.QueryRow(db.FindUserRoleByEmail, p.Email).Scan(&p.Role)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			// no user with that username
-			http.Error(w, "user not found", http.StatusNotFound)
-			return errors.New("user role not found")
-		}
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return errors.New("internal error")
-	}
-
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
 		return errors.New("missing JWT_KEY")
@@ -94,7 +81,7 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Retrieves and validates the JWT token from the request cookie.
-func ValidateJWTFromRequest(r *http.Request, p *domain.RegisterRequest) (*jwt.Token, error) {
+func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		return nil, err
@@ -112,4 +99,24 @@ func ValidateJWTFromRequest(r *http.Request, p *domain.RegisterRequest) (*jwt.To
 
 		return jwtKey, nil
 	})
+}
+
+// GetRoleFromRequest returns the role stored in the authenticated JWT cookie.
+func GetRoleFromRequest(r *http.Request) (string, error) {
+	token, err := ValidateJWTFromRequest(r)
+	if err != nil {
+		return "", err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("invalid token claims")
+	}
+
+	role, ok := claims["role"].(string)
+	if !ok || role == "" {
+		return "", errors.New("missing role claim")
+	}
+
+	return role, nil
 }

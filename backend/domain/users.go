@@ -2,21 +2,23 @@ package domain
 
 // handlers.LoginHandler
 type LoginRequest struct {
-	Email			string 		`json:"email"`
-	Password        string 		`json:"password"`
+	UsernameOrEmail string 		`json:"usernameOrEmail"`
+	Password        string		`json:"password"`
 }
 
 type UserAuth struct {
-	UserID         	int16
+	UserID			int64
 	Email        	string
 	Username     	string
-	PasswordHash 	string
-	Key          	string
+	Password 		string
+	Role 			string
 }
 
 // handlers.RegisterHandler
 type RegisterRequest struct {
 	Email    		string 		`json:"email"`
+	Username 		string 		`json:"username"`
 	Password 		string 		`json:"password"`
-	Role 			string 		`json:"role"`
+	Key      		string 		`json:"key"`
+	Role     		string 		`json:"role"`
 }

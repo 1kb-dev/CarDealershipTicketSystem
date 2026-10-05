@@ -14,7 +14,7 @@ import (
 var db *sql.DB
 
 func Connect() {
-	envPath := filepath.Join(".", ".env")
+	envPath := filepath.Join("..", ".env")
 	if err := godotenv.Load(envPath); err != nil {
 		log.Printf("Warning: could not load .env file from %s: %v", envPath, err)
 	}
