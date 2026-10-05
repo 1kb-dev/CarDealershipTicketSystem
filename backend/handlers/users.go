@@ -106,7 +106,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usernameRow := db.QueryRow(db.CheckUsernameAvailability, payload.Email)
+	usernameRow := db.QueryRow(db.CheckIfEmailAlreadyRegistered, payload.Email)
 	if middleware.ValidateUserAvailability(w, usernameRow, &payload) {
 		return
 	}
