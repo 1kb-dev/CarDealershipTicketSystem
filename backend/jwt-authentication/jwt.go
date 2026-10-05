@@ -1,7 +1,9 @@
 package jwtauth
 
 import (
+	"backend/db"
 	"backend/domain"
+	"database/sql"
 	"errors"
 	"net/http"
 	"os"
@@ -41,6 +43,21 @@ func ClearJwtToken(w http.ResponseWriter) {
 
 // Generates a JWT token for a user and stores it in a secure cookie.
 func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
+	if p.Email == "" {
+		return errors.New("missing email")
+	}
+
+	err := db.QueryRow(db.FindUserRoleByEmail, p.Email).Scan(&p.Role)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// no user with that username
+			http.Error(w, "user not found", http.StatusNotFound)
+			return errors.New("user role not found")
+		}
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return errors.New("internal error")
+	}
+
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
 		return errors.New("missing JWT_KEY")
@@ -48,6 +65,7 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": p.Username,
+		"role":     p.Role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 

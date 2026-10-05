@@ -45,7 +45,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow(db.FindUserByUsernameOrEmail, payload.UsernameOrEmail, payload.UsernameOrEmail)
+	row := db.QueryRow(db.FindUserByEmail, payload.UsernameOrEmail)
 
 	var u domain.UserAuth
 	if middleware.ValidateUserQueryScan(w, row, &u) {
@@ -57,7 +57,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		//return
 	//}
 
-	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Username: u.Username}); err != nil {
+	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: u.Email}); err != nil {
 		log.Printf("CreateJwtToken error: %v", err)
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
@@ -106,7 +106,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usernameRow := db.QueryRow(db.CheckUsernameAvailability, payload.Username)
+	usernameRow := db.QueryRow(db.CheckUsernameAvailability, payload.Email)
 	if middleware.ValidateUserAvailability(w, usernameRow, &payload) {
 		return
 	}

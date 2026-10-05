@@ -2,15 +2,15 @@ package db
 
 import "database/sql"
 
-const FindUserByUsernameOrEmail = `
-	SELECT user_id, USERNAME, EMAIL, PASSWORD
+const FindUserByEmail = `
+	SELECT user_id, EMAIL, PASSWORD
 	FROM public.app_user
-	WHERE USERNAME = $1 OR EMAIL = $2
+	WHERE EMAIL = $1
 `
 const CheckUsernameAvailability = `
-	SELECT USERNAME
+	SELECT user_id
 	FROM public.app_user
-	WHERE USERNAME = $1
+	WHERE EMAIL = $1
 `
 
 const CheckIfEmailAlreadyRegistered = `
@@ -19,13 +19,13 @@ const CheckIfEmailAlreadyRegistered = `
 	WHERE EMAIL = $1
 `
 const InsertUser = `
-	INSERT INTO public.app_user (USERNAME, EMAIL, PASSWORD, KEY)
+	INSERT INTO public.app_user (EMAIL, PASSWORD, KEY)
 	VALUES ($1, $2, $3, $4)
 `
-const FindUserRoleByUsername = `
+const FindUserRoleByEmail = `
 	SELECT ROLE
 	FROM public.app_user
-	WHERE USERNAME = $1
+	WHERE EMAIL = $1
 `
 
 // Allow query calls from handlers
