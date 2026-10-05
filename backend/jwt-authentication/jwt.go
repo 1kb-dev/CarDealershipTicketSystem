@@ -64,8 +64,8 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": p.Username,
-		"role":     p.Role,
+		"email": 	p.Email,
+		"role": 	p.Role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -94,7 +94,7 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Retrieves and validates the JWT token from the request cookie.
-func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
+func ValidateJWTFromRequest(r *http.Request, p *domain.RegisterRequest) (*jwt.Token, error) {
 	cookie, err := r.Cookie("token")
 	if err != nil {
 		return nil, err
