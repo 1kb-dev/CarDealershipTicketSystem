@@ -2,25 +2,30 @@ package db
 
 import "database/sql"
 
-const FindUserByUsernameOrEmail = `
-	SELECT USER_ID, USERNAME, EMAIL, PASSWORD, KEY
-	FROM OWL_LENDREG.USERS
-	WHERE USERNAME = :1 OR EMAIL = :2
+const FindUserByEmail = `
+	SELECT user_id, EMAIL, PASSWORD, ROLE
+	FROM public.app_user
+	WHERE EMAIL = $1
 `
 const CheckUsernameAvailability = `
-	SELECT USERNAME
-	FROM OWL_LENDREG.USERS
-	WHERE USERNAME = :1
+	SELECT user_id
+	FROM public.app_user
+	WHERE EMAIL = $1
 `
 
 const CheckIfEmailAlreadyRegistered = `
 	SELECT EMAIL
-	FROM OWL_LENDREG.USERS
-	WHERE EMAIL = :1
+	FROM public.app_user
+	WHERE EMAIL = $1
 `
 const InsertUser = `
-	INSERT INTO OWL_LENDREG.USERS (USERNAME, EMAIL, PASSWORD, KEY)
-	VALUES (:1, :2, :3, :4)
+	INSERT INTO public.app_user (EMAIL, PASSWORD, KEY)
+	VALUES ($1, $2, $3, $4)
+`
+const FindUserRoleByEmail = `
+	SELECT ROLE
+	FROM public.app_user
+	WHERE EMAIL = $1
 `
 
 // Allow query calls from handlers

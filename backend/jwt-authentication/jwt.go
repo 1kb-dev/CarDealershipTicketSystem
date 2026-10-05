@@ -41,6 +41,10 @@ func ClearJwtToken(w http.ResponseWriter) {
 
 // Generates a JWT token for a user and stores it in a secure cookie.
 func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
+	if p.Email == "" {
+		return errors.New("missing email")
+	}
+
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
 		return errors.New("missing JWT_KEY")
@@ -48,6 +52,7 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": p.Username,
+		"role":     p.Role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
