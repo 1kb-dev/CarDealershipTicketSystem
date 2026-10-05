@@ -2,7 +2,7 @@ package domain
 
 // handlers.lends
 // handlers.returns
-type Ticket struct {
+type TicketRequest struct {
 	TicketID			int16	    	`json:"ticket_id"`
 	UserID				int16			`json:"user_id"`
 	PriorityLevel  		int8           	`json:"priority_level"`

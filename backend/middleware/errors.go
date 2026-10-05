@@ -51,7 +51,7 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
-	if err := row.Scan(&u.ID, &u.Email, &u.Password, &u.Role); err != nil {
+	if err := row.Scan(&u.UserID, &u.Email, &u.PasswordHash); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return true

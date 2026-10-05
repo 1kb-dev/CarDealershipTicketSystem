@@ -3,29 +3,31 @@ package db
 import "database/sql"
 
 const FindUserByEmail = `
-	SELECT user_id, EMAIL, PASSWORD, ROLE
+	SELECT user_id, email, "password", "role"
 	FROM public.app_user
-	WHERE EMAIL = $1
-`
-const CheckUsernameAvailability = `
-	SELECT user_id
-	FROM public.app_user
-	WHERE EMAIL = $1
+	WHERE email = $1
 `
 
 const CheckIfEmailAlreadyRegistered = `
-	SELECT EMAIL
+	SELECT email
 	FROM public.app_user
-	WHERE EMAIL = $1
+	WHERE email = $1
 `
 const InsertUser = `
-	INSERT INTO public.app_user (EMAIL, PASSWORD, KEY)
-	VALUES ($1, $2, $3, $4)
+	INSERT INTO public.app_user
+	(user_id, email, "password", "role")
+	VALUES($1, $2, $3, 'guest'::user_role)
 `
 const FindUserRoleByEmail = `
 	SELECT ROLE
 	FROM public.app_user
 	WHERE EMAIL = $1
+`
+
+const InsertTicket = `
+	INSERT INTO public.ticket
+	(ticket_id, user_id, pr, category, subject, issue, claimed_by_user_id)
+	VALUES($1, $2, 5, $3, $4, $5, 0)
 `
 
 // Allow query calls from handlers
