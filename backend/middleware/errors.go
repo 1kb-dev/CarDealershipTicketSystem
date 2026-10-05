@@ -11,7 +11,7 @@ import (
 )
 
 // Helper to DebugFetch() to retrieve API failure as data
-func GetFetchStatusAndResponse(r *http.Request) (int, map[string]interface{}) {
+func GetFetchStatusAndResponse(r *http.Request) (int, map[string]any) {
 	reason := r.URL.Query().Get("reason")
 	if reason == "" {
 		reason = "Unknown error"
@@ -24,7 +24,7 @@ func GetFetchStatusAndResponse(r *http.Request) (int, map[string]interface{}) {
 		}
 	}
 
-	resp := map[string]interface{}{
+	resp := map[string]any{
 		"error":     "Fetch failed",
 		"reason":    reason,
 		"path":      r.URL.Path,
@@ -95,7 +95,7 @@ func CheckInternalServerStatus(w http.ResponseWriter, err error) bool {
 }
 
 // ValidateLendQueryScan ensures lend query results are usable and reports a server error if they're not.
-func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...interface{}) bool {
+func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...any) bool {
 	if scanErr := rows.Scan(dest...); scanErr != nil {
 		http.Error(w, scanErr.Error(), http.StatusInternalServerError)
 		return true
