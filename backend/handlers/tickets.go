@@ -23,6 +23,18 @@ func CreateTicketHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
+
+	_ = db.QueryRow(db.InsertTicket, payload.Category, payload.Platform, payload.Subject, payload.Issue, payload.ClaimedByUserID)
+	var ticket domain.TicketRequest
+	
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status": "created",
+		"ticket": ticket,
+	})
+}
+
 type TicketRequest struct {
 	TicketID			int16	    	`json:"ticket_id"`
 	UserID				int16			`json:"user_id"`
@@ -32,6 +44,4 @@ type TicketRequest struct {
 	Subject       		string       	`json:"subject"`
 	Issue         		string       	`json:"issue"`
 	ClaimedByUserID		int16       	`json:"claimed_by_user_id"`
-}
-	row := db.QueryRow(db.CreateTicket, payload.Category, payload.Platform, payload.Subject, payload.Issue, payload.ClaimedByUserID)
 }
