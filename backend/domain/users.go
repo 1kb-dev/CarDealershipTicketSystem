@@ -2,7 +2,7 @@ package domain
 
 // handlers.LoginHandler
 type LoginRequest struct {
-	UsernameOrEmail string 		`json:"usernameOrEmail"`
+	Email			string 		`json:"email"`
 	Password        string 		`json:"password"`
 	Key             string 		`json:"key"`
 }
@@ -18,7 +18,6 @@ type UserAuth struct {
 // handlers.RegisterHandler
 type RegisterRequest struct {
 	Email    		string 		`json:"email"`
-	Username 		string 		`json:"username"`
 	Password 		string 		`json:"password"`
-	Key      		string 		`json:"key"`
+	Role 			string 		`json:"role"`
 }
