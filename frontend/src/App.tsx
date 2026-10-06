@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import LoginFormPage from "./components/LoginFormPage";
 import IntroPage from "./components/IntroPage";
+import LoginFormPage from "./components/LoginFormPage";
+import RegisterFormPage from "./components/RegisterFormPage";
 import CreateTicketFormPage from "./components/CreateTicketFormPage";
 import TicketTablePage from "./components/TicketTablePage";
 import TicketDetailsPage from "./components/TicketDetailsPage";
@@ -27,6 +28,10 @@ function App() {
       <Routes>
         <Route path="/" element={<IntroPage />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
+        <Route
+          path="/register"
+          element={<RegisterFormPage setUser={setUser} />}
+        />
 
         {user ? (
           <>

@@ -10,6 +10,7 @@ type UserAuth struct {
 	UserID			int64
 	Email        	string
 	Password 		string
+	PasswordHash	string
 	Role 			string
 }
 
