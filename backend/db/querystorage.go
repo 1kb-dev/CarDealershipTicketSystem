@@ -37,14 +37,14 @@ const InsertTicket = `
 `
 
 // Allow query calls from handlers
-func Query(query string, args ...interface{}) (*sql.Rows, error) {
+func Query(query string, args ...any) (*sql.Rows, error) {
 	return db.Query(query, args...)
 }
 
-func QueryRow(query string, args ...interface{}) *sql.Row {
+func QueryRow(query string, args ...any) *sql.Row {
 	return db.QueryRow(query, args...)
 }
 
-func Exec(query string, args ...interface{}) (sql.Result, error) {
+func Exec(query string, args ...any) (sql.Result, error) {
 	return db.Exec(query, args...)
 }

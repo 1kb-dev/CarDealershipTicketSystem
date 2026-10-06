@@ -14,7 +14,6 @@ import (
 )
 
 // EmailHandler is a helper to the RegisterHandler function, providing checks for emails.
-// It's exclusive, save for the username checks, for there are two.
 func EmailHandler(w http.ResponseWriter, p *domain.RegisterRequest) bool {
 	email := strings.TrimSpace(p.Email)
 	if !strings.Contains(email, "@") {
@@ -47,7 +46,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow(db.FindUserByEmail, payload.UsernameOrEmail)
+	row := db.QueryRow(db.FindUserByEmail, payload.Email)
 
 	var u domain.UserAuth
 	if middleware.ValidateUserQueryScan(w, row, &u) {
@@ -67,10 +66,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"status":   "authenticated",
 		"userId":   u.UserID,
-		"username": u.Username,
+		"email": 	u.Email,
 	})
 }
 
@@ -108,8 +107,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usernameRow := db.QueryRow(db.CheckIfEmailAlreadyRegistered, payload.Email)
-	if middleware.ValidateUserAvailability(w, usernameRow, &payload) {
+	emailRow := db.QueryRow(db.CheckIfEmailAlreadyRegistered, payload.Email)
+	if middleware.ValidateEmailAvailability(w, emailRow, &payload) {
 		return
 	}
 
@@ -119,19 +118,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Password = passwdHash
 
-	keyHash, err := middleware.HashKey(w, payload.Key)
-	if err != nil {
-		return
-	}
-	payload.Key = keyHash
-
 	if err := middleware.RegisterUserIntoDB(&payload); err != nil {
 		log.Printf("RegisterUserIntoDB error: %v", err)
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
 		return
 	}
 
-	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Username: payload.Username}); err != nil {
+	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: payload.Email}); err != nil {
 		log.Printf("CreateJwtToken error: %v", err)
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
@@ -169,17 +162,16 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userID int64
-	var username string
-	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &username); err != nil {
+	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &email); err != nil {
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"authenticated": true,
-		"userId":        userID,
-		"username":      username,
+		"userId": 		userID,
+		"email": 		email,
 	})
 }

@@ -23,15 +23,25 @@ func CreateTicketHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-type TicketRequest struct {
-	TicketID			int16	    	`json:"ticket_id"`
-	UserID				int16			`json:"user_id"`
-	PriorityLevel  		int8           	`json:"priority_level"`
-	Category       		string       	`json:"category"`
-	Platform 			string 			`json:"platform"`
-	Subject       		string       	`json:"subject"`
-	Issue         		string       	`json:"issue"`
-	ClaimedByUserID		int16       	`json:"claimed_by_user_id"`
-}
-	row := db.QueryRow(db.CreateTicket, payload.Category, payload.Platform, payload.Subject, payload.Issue, payload.ClaimedByUserID)
+
+	row := db.QueryRow(db.InsertTicket, payload.UserID, payload.PriorityLevel,
+		payload.Category, payload.Platform, payload.Subject, payload.Issue)
+	if err := row.Scan(&payload.TicketID); err != nil {
+		http.Error(w, "Failed to create ticket", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]any{
+		"status":             "created",
+		"ticket_id":          payload.TicketID,
+		"user_id":            payload.UserID,
+		"priority_level":     payload.PriorityLevel,
+		"category":           payload.Category,
+		"platform":           payload.Platform,
+		"subject":            payload.Subject,
+		"issue":              payload.Issue,
+		"claimed_by_user_id": payload.ClaimedByUserID,
+	})
 }
