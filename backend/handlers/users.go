@@ -14,7 +14,6 @@ import (
 )
 
 // EmailHandler is a helper to the RegisterHandler function, providing checks for emails.
-// It's exclusive, save for the username checks, for there are two.
 func EmailHandler(w http.ResponseWriter, p *domain.RegisterRequest) bool {
 	email := strings.TrimSpace(p.Email)
 	if !strings.Contains(email, "@") {
