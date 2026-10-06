@@ -102,7 +102,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="username"
+                autoComplete="email"
                 required
                 autoFocus
                 value={email}
