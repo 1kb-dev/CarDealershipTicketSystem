@@ -99,7 +99,7 @@ func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 		return nil, errors.New("missing JWT_KEY")
 	}
 
-	return jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+	return jwt.Parse(cookie.Value, func(token *jwt.Token) (any, error) {
 		if token.Method != jwt.SigningMethodHS256 {
 			return nil, errors.New("unexpected signing method")
 		}

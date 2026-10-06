@@ -32,19 +32,20 @@ const FindUserRoleByEmail = `
 
 const InsertTicket = `
 	INSERT INTO public.ticket
-	(ticket_id, user_id, pr, category, subject, issue, claimed_by_user_id)
-	VALUES($1, $2, 5, $3, $4, $5, 0)
+	(user_id, pr, category, platform, subject, issue, claimed_by_user_id)
+	VALUES($1, $2, $3, $4, $5, $6, NULL)
+	RETURNING ticket_id
 `
 
 // Allow query calls from handlers
-func Query(query string, args ...interface{}) (*sql.Rows, error) {
+func Query(query string, args ...any) (*sql.Rows, error) {
 	return db.Query(query, args...)
 }
 
-func QueryRow(query string, args ...interface{}) *sql.Row {
+func QueryRow(query string, args ...any) *sql.Row {
 	return db.QueryRow(query, args...)
 }
 
-func Exec(query string, args ...interface{}) (sql.Result, error) {
+func Exec(query string, args ...any) (sql.Result, error) {
 	return db.Exec(query, args...)
 }
