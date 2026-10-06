@@ -143,9 +143,7 @@ const TicketTable = ({ email }: TicketTableProps) => {
                 onClick={() => setFilter(option)}
                 type="button"
               >
-                {option === "all"
-                  ? "All tickets"
-                  : "Search tickets"}
+                {option === "all" ? "All" : "Search"}
               </button>
             ))}
           </div>
