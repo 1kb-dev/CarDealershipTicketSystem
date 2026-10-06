@@ -37,6 +37,6 @@ func HashKey(w http.ResponseWriter, key string) (string, error) {
 
 // RegisterUserIntoDB is used to registrate the provided, if valid, registration body of data.
 func RegisterUserIntoDB(p *domain.RegisterRequest) error {
-	_, err := db.Exec(db.InsertUser, p.Username, p.Email, p.Password, p.Key)
+	_, err := db.Exec(db.InsertUser, p.Email, p.Password)
 	return err
 }

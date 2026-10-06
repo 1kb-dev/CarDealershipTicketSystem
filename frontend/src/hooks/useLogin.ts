@@ -4,23 +4,20 @@ import type { User } from "../App";
 // Change this to match your Go server's route.
 const LOGIN_URL = "/api/login";
 
-// Set to false once the backend is ready.
-const USE_MOCK = false;
-
 export interface LoginCredentials {
-  UsernameOrEmail: string;
+  email: string;
   password: string;
 }
 
 export interface LoginResponse {
   message: string;
-  username: string;
+  email: string;
   userId: number | null;
 }
 
 interface ApiBody {
   message?: string;
-  username?: string;
+  email?: string;
   userId?: number | null;
 }
 
@@ -41,58 +38,48 @@ export const useLogin = ({
   const [error, setError] = useState<string | null>(null);
 
   const login = async ({
-    UsernameOrEmail,
+    email,
     password,
   }: LoginCredentials): Promise<LoginResponse | undefined> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      let result: LoginResponse;
+      const response = await fetch(LOGIN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: email, password }),
+      });
 
-      if (USE_MOCK) {
-        result = {
-          message: "Login successful",
-          userId: 2,
-          username: "john_doe",
-        };
-      } else {
-        const response = await fetch(LOGIN_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ usernameOrEmail: UsernameOrEmail, password }),
-        });
+      const data: ApiBody | null = await response.json().catch(() => null);
 
-        const data: ApiBody | null = await response.json().catch(() => null);
-
-        if (!response.ok) {
-          if (response.status === 401 || response.status === 400) {
-            throw new Error(
-              data?.message ||
-                "Incorrect email or password. Check your details and try again.",
-            );
-          }
-          if (response.status === 429) {
-            throw new Error(
-              "Too many attempts. Wait a few minutes and try again.",
-            );
-          }
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 400) {
           throw new Error(
             data?.message ||
-              "Something went wrong on our side. Try again shortly.",
+              "Incorrect email or password. Check your details and try again.",
           );
         }
-
-        result = {
-          message: data?.message ?? "Login successful",
-          username: data?.username ?? "user",
-          userId: data?.userId ?? null,
-        };
+        if (response.status === 429) {
+          throw new Error(
+            "Too many attempts. Wait a few minutes and try again.",
+          );
+        }
+        throw new Error(
+          data?.message ||
+            "Something went wrong on our side. Try again shortly.",
+        );
       }
 
+      const result: LoginResponse = {
+        message: data?.message ?? "Login successful",
+        email: data?.email ?? "user",
+        userId: data?.userId ?? null,
+      };
+
       if (result.userId !== null) {
-        onSuccess?.({ userId: result.userId, username: result.username });
+        onSuccess?.({ userId: result.userId, email: result.email });
       }
       return result;
     } catch (err: unknown) {

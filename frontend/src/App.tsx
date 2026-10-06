@@ -10,7 +10,7 @@ import CheckSession from "./services/SessionService";
 
 export interface User {
   userId: number;
-  username: string;
+  email: string;
 }
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     void CheckSession().then((sessionUser) => {
-      if (sessionUser) setUser(sessionUser);
+      if (sessionUser) setUser({ ...sessionUser, email: "" });
     });
   }, []);
 
@@ -39,7 +39,8 @@ function App() {
               element={
                 <TicketTablePage
                   user_id={user.userId}
-                  username={user.username}
+                  email={user.email}
+                  tickets={[]}
                 />
               }
             />

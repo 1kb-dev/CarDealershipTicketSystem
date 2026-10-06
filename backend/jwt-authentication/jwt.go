@@ -3,6 +3,7 @@ package jwtauth
 import (
 	"backend/domain"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -74,12 +75,8 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
 		if err != nil || role != "admin" {
+			log.Printf("Invalid or missing token: %v", err)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		if err != nil {
-			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
 			return
 		}
 

@@ -36,7 +36,7 @@ func GetFetchStatusAndResponse(r *http.Request) (int, map[string]any) {
 	return status, resp
 }
 
-// Checks if a handler has failed upon fetch with stated reason and returns for reusability
+// Checks if a handler has failed upon fetch with stated reason and returns for reusability.
 func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Query().Get("debug") == "1" {
 		status, resp := GetFetchStatusAndResponse(r)
@@ -52,7 +52,7 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
-	if err := row.Scan(&u.UserID, &u.Email, &u.Password, &u.Role); err != nil {
+	if err := row.Scan(&u.UserID, &u.Email); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return true
@@ -64,6 +64,8 @@ func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAu
 
 	return false
 }
+
+// Verifies the user's role.
 
 // Ensures the request is a GET.
 func VerifyIsGetMethod(w http.ResponseWriter, r *http.Request) bool {
@@ -138,22 +140,6 @@ func VerifyNonDuplicateTicket(w http.ResponseWriter, row *sql.Row, t *domain.Tic
 	return true
 }
 
-// ScanExistingUsername retrieves an existing username to support "already taken" validation.
-func ScanExistingUsername(w http.ResponseWriter, row *sql.Row) (string, bool) {
-	var existingUsername string
-	if err := row.Scan(&existingUsername); err != nil {
-		if err == sql.ErrNoRows {
-			return "", false
-		}
-
-		log.Printf("ScanExistingUsername DB error: %v", err)
-		http.Error(w, "DB error", http.StatusInternalServerError)
-		return "", true
-	}
-
-	return existingUsername, false
-}
-
 // ScanExistingEmail retrieves an existing email to support "already registered" validation.
 func ScanExistingEmail(w http.ResponseWriter, row *sql.Row) (string, bool) {
 	var existingEmail string
@@ -168,21 +154,6 @@ func ScanExistingEmail(w http.ResponseWriter, row *sql.Row) (string, bool) {
 	}
 
 	return existingEmail, false
-}
-
-// ValidateUserAvailability checks if a username is already in use and returns an appropriate client error.
-func ValidateUserAvailability(w http.ResponseWriter, row *sql.Row, u *models.RegisterRequest) bool {
-	existingUsername, scanErr := ScanExistingUsername(w, row)
-	if scanErr {
-		return true
-	}
-
-	if existingUsername == u.Username {
-		http.Error(w, "Username already exists", http.StatusNotAcceptable)
-		return true
-	}
-
-	return false
 }
 
 // ValidateEmailAvailability checks if an email is already in use and returns an appropriate client error.
