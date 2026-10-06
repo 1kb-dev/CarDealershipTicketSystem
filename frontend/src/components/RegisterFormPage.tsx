@@ -1,19 +1,19 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 // Adjust the path to match your project structure.
-import { useLogin } from "../hooks/useLogin";
+import { useRegister } from "../hooks/useRegister";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../App";
 
 const COMPANY_NAME = "AA Car Dealership";
 
-interface LoginFormPageProps {
+interface RegisterFormPageProps {
   setUser: (user: User | null) => void;
 }
 
-const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
+const RegisterFormPage = ({ setUser }: RegisterFormPageProps) => {
   const navigate = useNavigate();
-  const { login, isLoading, error } = useLogin({
+  const { register, isLoading, error } = useRegister({
     onSuccess: (user) => {
       setUser(user);
       navigate("/");
@@ -26,7 +26,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isLoading) return;
-    void login({ email, password });
+    void register({ email, password });
   };
 
   return (
@@ -50,8 +50,8 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
             Everything your team needs, in one secure place.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-blue-100/80">
-            Sign in with your work account to access our dashboard, documents
-            and internal tools.
+            Sign up with a work email for sponsors, proxy agents, or new workers
+            to access our internal system.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
             </span>
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Sign up</h1>
           <p className="mt-2 text-sm text-slate-600">
             Use your work email and password to continue.
           </p>
@@ -126,7 +126,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -174,13 +174,14 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
                   />
                 </svg>
               )}
-              {isLoading ? "Signing in…" : "Sign in"}
+              {isLoading ? "Signing up…" : "Sign up"}
             </button>
           </form>
 
           <p className="mt-8 text-sm text-slate-500">
-            Accounts are created by your administrator. Need access or having
-            trouble signing in? Contact our IT support team.
+            Have questions or issues registering an account? Contact our IT
+            support team. Note that new accounts will by default be registered
+            as guests—the IT team can help with that, too.
           </p>
         </div>
       </main>
@@ -188,4 +189,4 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   );
 };
 
-export default LoginFormPage;
+export default RegisterFormPage;

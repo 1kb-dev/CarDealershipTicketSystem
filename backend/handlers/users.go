@@ -77,10 +77,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//if err := middleware.CompareHashAndSecret(u.PasswordHash, payload.Password); err != nil {
-	//http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-	//return
-	//}
+	if err := middleware.CompareHashAndSecret(u.PasswordHash, payload.Password); err != nil {
+	http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+	return
+	}
 
 	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: u.Email, Role: u.Role}); err != nil {
 		log.Printf("CreateJwtToken error: %v", err)
