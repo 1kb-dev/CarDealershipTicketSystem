@@ -53,6 +53,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var payload domain.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		log.Printf("Login JSON decode error: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
@@ -71,6 +72,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := middleware.CompareHashAndSecret(u.PasswordHash, payload.Password); err != nil {
+		log.Printf("Secret comparison error: %v", err)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}

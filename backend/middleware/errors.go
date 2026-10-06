@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"backend/domain"
 	models "backend/domain"
 	"database/sql"
 	"encoding/json"
@@ -11,7 +10,7 @@ import (
 	"time"
 )
 
-// Helper to DebugFetch() to retrieve API failure as data
+// Helper to DebugFetch() to retrieve API failure as data.
 func GetFetchStatusAndResponse(r *http.Request) (int, map[string]any) {
 	reason := r.URL.Query().Get("reason")
 	if reason == "" {
@@ -52,12 +51,15 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
-	if err := row.Scan(&u.UserID, &u.Email, &u.PasswordHash, &u.Role); err != nil {
+	if err := row.Scan(&u.UserID, &u.Email); err != nil {
+		log.Printf("ValidateUserQueryScan error: %v", err)
 		if err == sql.ErrNoRows {
+			log.Printf("ValidateUserQueryScan: invalid credentials: %v", err)
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return true
 		}
 
+		log.Printf("ValidateUserQueryScan: internal server error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return true
 	}
@@ -70,6 +72,7 @@ func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAu
 // Ensures the request is a GET.
 func VerifyIsGetMethod(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method != http.MethodGet {
+		log.Printf("VerifyIsGetMethod: invalid request method: %s", r.Method)
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return false
 	}
@@ -80,6 +83,7 @@ func VerifyIsGetMethod(w http.ResponseWriter, r *http.Request) bool {
 // Ensures the request is a POST.
 func VerifyIsPostMethod(w http.ResponseWriter, r *http.Request) bool {
 	if r.Method != http.MethodPost {
+		log.Printf("VerifyIsPostMethod: invalid request method: %s", r.Method)
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return false
 	}
@@ -90,6 +94,7 @@ func VerifyIsPostMethod(w http.ResponseWriter, r *http.Request) bool {
 // CheckInternalServerStatus returns true and writes a 500 response when a database operation fails unexpectedly.
 func CheckInternalServerStatus(w http.ResponseWriter, err error) bool {
 	if err != nil {
+		log.Printf("CheckInternalServerStatus: internal server error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return true
 	}
@@ -100,6 +105,7 @@ func CheckInternalServerStatus(w http.ResponseWriter, err error) bool {
 // ValidateLendQueryScan ensures lend query results are usable and reports a server error if they're not.
 func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...any) bool {
 	if scanErr := rows.Scan(dest...); scanErr != nil {
+		log.Printf("ValidateLendQueryScan: scan error: %v", scanErr)
 		http.Error(w, scanErr.Error(), http.StatusInternalServerError)
 		return true
 	}
@@ -107,36 +113,17 @@ func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...any) b
 	return false
 }
 
+
 // VerifyRowsQueried checks the iterator for query errors after reading rows.
 func VerifyRowsQueried(w http.ResponseWriter, rows *sql.Rows) bool {
 	if err := rows.Err(); err != nil {
-		log.Printf("RowsQueried")
+		log.Printf("VerifyRowsQueried error: %v", err)
+		log.Printf("VerifyRowsQueried: DB error")
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return true
 	}
 
 	return false
-}
-
-// VerufyNonDuplicateTicket checks by row count if ticket passes duplication verification.
-func VerifyNonDuplicateTicket(w http.ResponseWriter, row *sql.Row, t *domain.TicketRequest) bool {
-	var existingIssue string
-	if err := row.Scan(&t.TicketID, &existingIssue); err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Failed to create ticket", http.StatusInternalServerError)
-			return false
-		}
-
-		http.Error(w, "DB error", http.StatusInternalServerError)
-		return false
-	}
-
-	if existingIssue == t.Issue {
-		http.Error(w, "Ticket already exists", http.StatusConflict)
-		return true
-	}
-
-	return true
 }
 
 // ScanExistingEmail retrieves an existing email to support "already registered" validation.
@@ -148,6 +135,7 @@ func ScanExistingEmail(w http.ResponseWriter, row *sql.Row) (string, bool) {
 		}
 
 		log.Printf("ScanExistingEmail DB error: %v", err)
+		log.Printf("ScanExistingEmail: DB error")
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return "", true
 	}
@@ -163,6 +151,7 @@ func ValidateEmailAvailability(w http.ResponseWriter, row *sql.Row, e *models.Re
 	}
 
 	if existingEmail == e.Email {
+		log.Printf("ValidateEmailAvailability: email already registered: %s", e.Email)
 		http.Error(w, "Email already registered", http.StatusNotAcceptable)
 		return true
 	}
@@ -179,6 +168,7 @@ func ScanExistence(w http.ResponseWriter, row *sql.Row) (bool, bool) {
 		}
 
 		log.Printf("ScanIntExistence DB error: %v", err)
+		log.Printf("ScanExistence: DB error")
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return false, true // Not found, had error
 	}
