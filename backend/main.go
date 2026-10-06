@@ -24,7 +24,8 @@ func main() {
 	http.HandleFunc("/api/logout", logRequest(middleware.CORS(handlers.LogoutHandler)))
 	http.HandleFunc("/api/register", logRequest(middleware.CORS(handlers.RegisterHandler)))
 	http.HandleFunc("/api/session", logRequest(middleware.CORS(handlers.SessionHandler))) // JWT
-	// Ticket related
+
+	// Tickets
 	http.HandleFunc("/api/tickets", logRequest(middleware.CORS(jwtauth.ProtectedClientHandler(handlers.GetTicketsHandler))))
 
 	// Security

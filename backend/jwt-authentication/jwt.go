@@ -89,13 +89,8 @@ func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
-		if err != nil || (role != "worker" && role != "admin") {
+		if err != nil || (role != "worker" && role != "admin" && role != "guest") {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		if err != nil {
-			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
 			return
 		}
 
