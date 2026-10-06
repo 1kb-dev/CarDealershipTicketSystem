@@ -8,6 +8,12 @@ const FindUserByEmail = `
 	WHERE email = $1
 `
 
+const FindUserIdentityByEmail = `
+	SELECT user_id, email
+	FROM public.app_user
+	WHERE email = $1
+`
+
 const CheckIfEmailAlreadyRegistered = `
 	SELECT email
 	FROM public.app_user
