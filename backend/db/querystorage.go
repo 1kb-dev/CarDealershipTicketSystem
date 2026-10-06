@@ -24,6 +24,11 @@ const FindUserRoleByEmail = `
 	WHERE EMAIL = $1
 `
 
+const FindUserIdentityByEmail = `
+	SELECT user_id
+	FROM public.app_user
+	WHERE email = $1
+`
 const InsertTicket = `
 	INSERT INTO public.ticket
 	(user_id, pr, category, platform, subject, issue, claimed_by_user_id)
