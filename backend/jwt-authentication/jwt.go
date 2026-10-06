@@ -3,6 +3,7 @@ package jwtauth
 import (
 	"backend/domain"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -74,12 +75,8 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
 		if err != nil || role != "admin" {
+			log.Printf("Invalid or missing token: %v", err)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		if err != nil {
-			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
 			return
 		}
 
@@ -118,7 +115,7 @@ func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 		return nil, errors.New("missing JWT_KEY")
 	}
 
-	return jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+	return jwt.Parse(cookie.Value, func(token *jwt.Token) (any, error) {
 		if token.Method != jwt.SigningMethodHS256 {
 			return nil, errors.New("unexpected signing method")
 		}

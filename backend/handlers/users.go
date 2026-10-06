@@ -14,7 +14,6 @@ import (
 )
 
 // EmailHandler is a helper to the RegisterHandler function, providing checks for emails.
-// It's exclusive, save for the username checks, for there are two.
 func EmailHandler(w http.ResponseWriter, p *domain.RegisterRequest) bool {
 	email := strings.TrimSpace(p.Email)
 	if !strings.Contains(email, "@") {
@@ -29,6 +28,17 @@ func EmailHandler(w http.ResponseWriter, p *domain.RegisterRequest) bool {
 	}
 
 	return false
+}
+
+// NormalizeEmail trims and validates an email address for authentication requests.
+func NormalizeEmail(w http.ResponseWriter, email string) (string, bool) {
+	email = strings.TrimSpace(email)
+	if !strings.Contains(email, "@") {
+		http.Error(w, "Invalid email", http.StatusUnprocessableEntity)
+		return "", true
+	}
+
+	return email, false
 }
 
 // LoginHandler handles all logons from the '/api/login' API.
@@ -47,7 +57,20 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := db.QueryRow(db.FindUserByEmail, payload.UsernameOrEmail)
+	
+	passwdHash, err := middleware.HashPassword(w, payload.Password)
+	if err != nil {
+		return
+	}
+	payload.Password = passwdHash
+
+	normalEmail, invalidEmail := NormalizeEmail(w, payload.Email)
+	if invalidEmail {
+		return
+	}
+	payload.Email = normalEmail
+
+	row := db.QueryRow(db.FindUserByEmail, payload.Email)
 
 	var u domain.UserAuth
 	if middleware.ValidateUserQueryScan(w, row, &u) {
@@ -67,10 +90,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"status":   "authenticated",
 		"userId":   u.UserID,
-		"username": u.Username,
+		"email": 	u.Email,
 	})
 }
 
@@ -108,8 +131,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usernameRow := db.QueryRow(db.CheckIfEmailAlreadyRegistered, payload.Email)
-	if middleware.ValidateUserAvailability(w, usernameRow, &payload) {
+	emailRow := db.QueryRow(db.CheckIfEmailAlreadyRegistered, payload.Email)
+	if middleware.ValidateEmailAvailability(w, emailRow, &payload) {
 		return
 	}
 
@@ -119,19 +142,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Password = passwdHash
 
-	keyHash, err := middleware.HashKey(w, payload.Key)
-	if err != nil {
-		return
-	}
-	payload.Key = keyHash
-
 	if err := middleware.RegisterUserIntoDB(&payload); err != nil {
 		log.Printf("RegisterUserIntoDB error: %v", err)
 		http.Error(w, "Failed to register user", http.StatusInternalServerError)
 		return
 	}
 
-	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Username: payload.Username}); err != nil {
+	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: payload.Email}); err != nil {
 		log.Printf("CreateJwtToken error: %v", err)
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
@@ -168,18 +185,17 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userID int64
-	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID); err != nil {
-		log.Default().Printf("Error retrieving user ID for email %s: %v", email, err)
+	var userID int32
+	if err := db.QueryRow(db.FindUserByEmail, email).Scan(&userID, &email); err != nil {
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	json.NewEncoder(w).Encode(map[string]any{
 		"authenticated": true,
-		"userId":        userID,
-		"email":      email,
+		"userId": 		userID,
+		"email": 		email,
 	})
 }

@@ -34,6 +34,7 @@ const CreateTicketForm = ({ user_id }: CreateTicketFormProps) => {
     event.preventDefault();
     if (isLoading) return;
 
+    setSubmitted(false);
     void createTicket({ user_id, category, platform, subject, issue });
   };
   return (

@@ -66,7 +66,7 @@ export const useTicketCreator = ({
       const result: TicketDetails = {
         ticket_id: data?.ticket_id ?? 0,
         user_id: data?.user_id ?? ticket.user_id,
-        priority_level: data?.priority_level ?? 0,
+        priority_level: data?.priority_level ?? 5,
         category: data?.category ?? ticket.category,
         platform: data?.platform ?? ticket.platform,
         subject: data?.subject ?? ticket.subject,

@@ -1,6 +1,6 @@
 export interface SessionUser {
   userId: number;
-  username: string;
+  email: string;
 }
 
 export default async function CheckSession(): Promise<SessionUser | null> {
@@ -16,18 +16,18 @@ export default async function CheckSession(): Promise<SessionUser | null> {
     const session = (await response.json()) as {
       authenticated?: boolean;
       userId?: number;
-      username?: string;
+      email?: string;
     };
 
     if (
       !session.authenticated ||
       typeof session.userId !== "number" ||
-      typeof session.username !== "string"
+      typeof session.email !== "string"
     ) {
       return null;
     }
 
-    return { userId: session.userId, username: session.username };
+    return { userId: session.userId, email: session.email };
   } catch {
     return null;
   }

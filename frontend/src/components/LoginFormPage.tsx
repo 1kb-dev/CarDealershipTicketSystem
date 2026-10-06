@@ -26,7 +26,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
   const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isLoading) return;
-    void login({ UsernameOrEmail: email, password });
+    void login({ email, password });
   };
 
   return (
@@ -102,7 +102,7 @@ const LoginFormPage = ({ setUser }: LoginFormPageProps) => {
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="username"
+                autoComplete="email"
                 required
                 autoFocus
                 value={email}

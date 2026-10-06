@@ -1,7 +1,6 @@
 package domain
 
-// handlers.lends
-// handlers.returns
+// handlers.CreateTicketHandler
 type TicketRequest struct {
 	TicketID        int32  `json:"ticket_id"`
 	UserID          int32  `json:"user_id"`
