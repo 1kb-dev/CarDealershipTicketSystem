@@ -37,11 +37,7 @@ function App() {
             <Route
               path="/tickets"
               element={
-                <TicketTablePage
-                  user_id={user.userId}
-                  email={user.email}
-                  tickets={[]}
-                />
+                <TicketTablePage user_id={user.userId} email={user.email} />
               }
             />
             <Route path="/ticket-details" element={<TicketDetailsPage />} />

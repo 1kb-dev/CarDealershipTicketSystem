@@ -1,35 +1,43 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GetTickets from "../hooks/getTickets";
 
 export interface Ticket {
   priority_level: number;
   ticket_id: number;
   user_id: number;
-  email: string;
   category: string;
+  platform: string;
   subject: string;
+  issue: string;
+  claimed_by_user_id: number;
 }
 
 interface TicketTableProps {
   user_id: number;
-  username: string;
+  email: string;
 }
 
 type TicketFilter = "all" | "yours" | "user";
 
-const TicketTable = ({ user_id, username }: TicketTableProps) => {
+const TicketTable = ({ user_id, email }: TicketTableProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<TicketFilter>("all");
   const [userFilter, setUserFilter] = useState("");
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    GetTickets().then((fetchedTickets) => {
+    const loadTickets = async () => {
+      const fetchedTickets = await GetTickets();
       if (fetchedTickets) {
-        console.log("Fetched tickets:", fetchedTickets);
         setTickets(fetchedTickets);
+        setFilter("all");
+        setUserFilter("");
       }
-    });
+      setIsLoading(false);
+    };
+
+    void loadTickets();
   }, []);
 
   useEffect(() => {
@@ -46,16 +54,13 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, []);
 
-  const visibleTickets = useMemo(
-    () =>
-      tickets.filter((ticket) => {
-        if (filter === "yours") return ticket.user_id === user_id;
-        if (filter === "user")
+  const visibleTickets =
+    filter === "all"
+      ? tickets
+      : tickets.filter((ticket) => {
+          if (filter === "yours") return ticket.user_id === user_id;
           return userFilter === "" || ticket.user_id === Number(userFilter);
-        return true;
-      }),
-    [filter, userFilter, user_id],
-  );
+        });
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
@@ -79,7 +84,7 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden text-sm text-slate-600 sm:block">
-              {username}
+              {email}
             </span>
             <details className="relative" ref={accountMenuRef}>
               <summary className="cursor-pointer list-none rounded-md px-2 py-1 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2">
@@ -162,7 +167,7 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
 
         <div className="mt-8 overflow-hidden rounded-md border border-slate-200">
           <div className="overflow-x-auto">
-            <table className="min-w-[720px] w-full border-collapse text-left">
+            <table className="min-w-[980px] w-full border-collapse text-left">
               <caption className="sr-only">Support tickets</caption>
               <thead className="bg-slate-50">
                 <tr className="border-b border-slate-200">
@@ -179,7 +184,7 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
                     ID
                   </th>
                   <th
-                    className="w-44 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                    className="w-48 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
                     scope="col"
                   >
                     User
@@ -191,6 +196,12 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
                     Category
                   </th>
                   <th
+                    className="w-52 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                    scope="col"
+                  >
+                    Platform
+                  </th>
+                  <th
                     className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500"
                     scope="col"
                   >
@@ -199,38 +210,50 @@ const TicketTable = ({ user_id, username }: TicketTableProps) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
-                {visibleTickets.map((ticket) => (
-                  <tr
-                    className="transition-colors hover:bg-slate-50"
-                    key={ticket.ticket_id}
-                  >
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-700">
-                      P{ticket.priority_level}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-600">
-                      #{ticket.ticket_id}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-700">
-                      <span className="block font-medium text-slate-900">
-                        {ticket.email}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        User {ticket.user_id}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-600">
-                      {ticket.category}
-                    </td>
-                    <td className="px-5 py-4 text-sm font-medium text-slate-900">
-                      {ticket.subject}
-                    </td>
-                  </tr>
-                ))}
-                {visibleTickets.length === 0 && (
+                {isLoading && (
                   <tr>
                     <td
                       className="px-5 py-10 text-center text-sm text-slate-500"
-                      colSpan={5}
+                      colSpan={6}
+                    >
+                      Loading tickets...
+                    </td>
+                  </tr>
+                )}
+                {!isLoading &&
+                  visibleTickets.map((ticket) => (
+                    <tr
+                      className="transition-colors hover:bg-slate-50"
+                      key={ticket.ticket_id}
+                    >
+                      <td className="px-5 py-4 text-sm font-semibold text-slate-700">
+                        P{ticket.priority_level}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-slate-600">
+                        #{ticket.ticket_id}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-slate-700">
+                        User {ticket.user_id}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-slate-600">
+                        {ticket.category}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-slate-600">
+                        {ticket.platform}
+                      </td>
+                      <td className="px-5 py-4 text-sm font-medium text-slate-900">
+                        <span className="block">{ticket.subject}</span>
+                        <span className="mt-1 block text-xs font-normal text-slate-500">
+                          {ticket.issue}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                {!isLoading && visibleTickets.length === 0 && (
+                  <tr>
+                    <td
+                      className="px-5 py-10 text-center text-sm text-slate-500"
+                      colSpan={6}
                     >
                       No tickets found for this user.
                     </td>
