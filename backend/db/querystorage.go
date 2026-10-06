@@ -37,9 +37,10 @@ const InsertTicket = `
 `
 
 const GetTickets = `
-	SELECT ticket_id, user_id, pr, category, platform, subject, issue,
+	SELECT t.ticket_id, t.user_id, u.email, t.pr, t.category, t.platform, t.subject, t.issue,
 	       COALESCE(claimed_by_user_id, 0) AS claimed_by_user_id
-	FROM public.ticket;
+	FROM public.ticket t
+	JOIN public.app_user u ON u.user_id = t.user_id;
 `
 
 // Allow query calls from handlers

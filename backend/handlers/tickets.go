@@ -69,7 +69,7 @@ func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
 	var tickets []domain.TicketRequest
 	for rows.Next() {
 		var ticket domain.TicketRequest
-		err := rows.Scan(&ticket.TicketID, &ticket.UserID, &ticket.PriorityLevel, &ticket.Category, &ticket.Platform, &ticket.Subject, &ticket.Issue, &ticket.ClaimedByUserID)
+		err := rows.Scan(&ticket.TicketID, &ticket.UserID, &ticket.Email, &ticket.PriorityLevel, &ticket.Category, &ticket.Platform, &ticket.Subject, &ticket.Issue, &ticket.ClaimedByUserID)
 		if err != nil {
 			http.Error(w, "Failed to scan ticket", http.StatusInternalServerError)
 			return

@@ -5,6 +5,7 @@ export interface Ticket {
   priority_level: number;
   ticket_id: number;
   user_id: number;
+  email: string;
   category: string;
   platform: string;
   subject: string;
@@ -13,17 +14,16 @@ export interface Ticket {
 }
 
 interface TicketTableProps {
-  user_id: number;
   email: string;
 }
 
-type TicketFilter = "all" | "yours" | "user";
+type TicketFilter = "all" | "search";
 
-const TicketTable = ({ user_id, email }: TicketTableProps) => {
+const TicketTable = ({ email }: TicketTableProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<TicketFilter>("all");
-  const [userFilter, setUserFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const TicketTable = ({ user_id, email }: TicketTableProps) => {
       if (fetchedTickets) {
         setTickets(fetchedTickets);
         setFilter("all");
-        setUserFilter("");
+        setSearchQuery("");
       }
       setIsLoading(false);
     };
@@ -58,8 +58,12 @@ const TicketTable = ({ user_id, email }: TicketTableProps) => {
     filter === "all"
       ? tickets
       : tickets.filter((ticket) => {
-          if (filter === "yours") return ticket.user_id === user_id;
-          return userFilter === "" || ticket.user_id === Number(userFilter);
+          const query = searchQuery.trim().toLowerCase();
+          return (
+            query === "" ||
+            ticket.email.toLowerCase().includes(query) ||
+            String(ticket.ticket_id).includes(query)
+          );
         });
 
   return (
@@ -132,7 +136,7 @@ const TicketTable = ({ user_id, email }: TicketTableProps) => {
             <span className="mr-1 text-sm font-medium text-slate-700">
               Show
             </span>
-            {(["all", "yours", "user"] as TicketFilter[]).map((option) => (
+            {(["all", "search"] as TicketFilter[]).map((option) => (
               <button
                 className={`rounded-md px-3 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 ${filter === option ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
                 key={option}
@@ -141,25 +145,22 @@ const TicketTable = ({ user_id, email }: TicketTableProps) => {
               >
                 {option === "all"
                   ? "All tickets"
-                  : option === "yours"
-                    ? "Yours"
-                    : "By user ID"}
+                  : "Search tickets"}
               </button>
             ))}
           </div>
-          {filter === "user" && (
+          {filter === "search" && (
             <label
               className="flex items-center gap-3 text-sm text-slate-600"
-              htmlFor="user-filter"
+              htmlFor="ticket-search"
             >
-              User ID
+              Email or ticket ID
               <input
-                className="w-28 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/30"
-                id="user-filter"
-                inputMode="numeric"
-                onChange={(event) => setUserFilter(event.target.value)}
-                placeholder="e.g. 17"
-                value={userFilter}
+                className="w-64 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/30"
+                id="ticket-search"
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="user@example.com or 123"
+                value={searchQuery}
               />
             </label>
           )}
@@ -233,7 +234,12 @@ const TicketTable = ({ user_id, email }: TicketTableProps) => {
                         #{ticket.ticket_id}
                       </td>
                       <td className="px-5 py-4 text-sm text-slate-700">
-                        User {ticket.user_id}
+                        <span className="block font-medium text-slate-900">
+                          {ticket.email}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          User {ticket.user_id}
+                        </span>
                       </td>
                       <td className="px-5 py-4 text-sm text-slate-600">
                         {ticket.category}
