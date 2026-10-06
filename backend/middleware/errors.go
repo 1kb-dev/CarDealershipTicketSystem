@@ -59,7 +59,7 @@ func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAu
 			return true
 		}
 
-		log.Printf("ValidateUserQueryScan: internal server error: %v", err)
+		log.Printf("internal server error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return true
 	}
@@ -117,8 +117,7 @@ func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...any) b
 // VerifyRowsQueried checks the iterator for query errors after reading rows.
 func VerifyRowsQueried(w http.ResponseWriter, rows *sql.Rows) bool {
 	if err := rows.Err(); err != nil {
-		log.Printf("VerifyRowsQueried error: %v", err)
-		log.Printf("VerifyRowsQueried: DB error")
+		log.Printf("VerifyRowsQueried DB error: %v", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return true
 	}
@@ -135,7 +134,6 @@ func ScanExistingEmail(w http.ResponseWriter, row *sql.Row) (string, bool) {
 		}
 
 		log.Printf("ScanExistingEmail DB error: %v", err)
-		log.Printf("ScanExistingEmail: DB error")
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return "", true
 	}
@@ -168,7 +166,6 @@ func ScanExistence(w http.ResponseWriter, row *sql.Row) (bool, bool) {
 		}
 
 		log.Printf("ScanIntExistence DB error: %v", err)
-		log.Printf("ScanExistence: DB error")
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return false, true // Not found, had error
 	}
