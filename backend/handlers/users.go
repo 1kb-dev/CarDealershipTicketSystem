@@ -30,6 +30,17 @@ func EmailHandler(w http.ResponseWriter, p *domain.RegisterRequest) bool {
 	return false
 }
 
+// NormalizeEmail trims and validates an email address for authentication requests.
+func NormalizeEmail(w http.ResponseWriter, email string) (string, bool) {
+	email = strings.TrimSpace(email)
+	if !strings.Contains(email, "@") {
+		http.Error(w, "Invalid email", http.StatusUnprocessableEntity)
+		return "", true
+	}
+
+	return email, false
+}
+
 // LoginHandler handles all logons from the '/api/login' API.
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if middleware.DebugFetch(w, r) {
@@ -45,6 +56,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
+
+	
+	passwdHash, err := middleware.HashPassword(w, payload.Password)
+	if err != nil {
+		return
+	}
+	payload.Password = passwdHash
+
+	normalEmail, invalidEmail := NormalizeEmail(w, payload.Email)
+	if invalidEmail {
+		return
+	}
+	payload.Email = normalEmail
 
 	row := db.QueryRow(db.FindUserByEmail, payload.Email)
 
@@ -161,8 +185,8 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userID int64
-	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &email); err != nil {
+	var userID int32
+	if err := db.QueryRow(db.FindUserByEmail, email).Scan(&userID, &email); err != nil {
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}

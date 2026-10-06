@@ -3,12 +3,6 @@ package db
 import "database/sql"
 
 const FindUserByEmail = `
-	SELECT user_id, email, "password", "role"
-	FROM public.app_user
-	WHERE email = $1
-`
-
-const FindUserIdentityByEmail = `
 	SELECT user_id, email
 	FROM public.app_user
 	WHERE email = $1
@@ -21,8 +15,8 @@ const CheckIfEmailAlreadyRegistered = `
 `
 const InsertUser = `
 	INSERT INTO public.app_user
-	(user_id, email, "password", "role")
-	VALUES($1, $2, $3, 'guest'::user_role)
+	(email, "password")
+	VALUES($1, $2)
 `
 const FindUserRoleByEmail = `
 	SELECT ROLE
