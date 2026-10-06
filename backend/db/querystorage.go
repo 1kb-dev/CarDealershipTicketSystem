@@ -3,7 +3,7 @@ package db
 import "database/sql"
 
 const FindUserByEmail = `
-	SELECT user_id, email, "password", role
+	SELECT user_id, email
 	FROM public.app_user
 	WHERE email = $1
 `
@@ -19,9 +19,9 @@ const InsertUser = `
 	VALUES($1, $2)
 `
 const FindUserRoleByEmail = `
-	SELECT ROLE
+	SELECT role
 	FROM public.app_user
-	WHERE EMAIL = $1
+	WHERE email = $1
 `
 
 const FindUserIdentityByEmail = `
@@ -32,7 +32,7 @@ const FindUserIdentityByEmail = `
 const InsertTicket = `
 	INSERT INTO public.ticket
 	(user_id, pr, category, platform, subject, issue, claimed_by_user_id)
-	VALUES($1, $2, $3, $4, $5, $6, NULL)
+	VALUES($1, $2, $3, $4, $5, $6, null)
 	RETURNING ticket_id
 `
 
