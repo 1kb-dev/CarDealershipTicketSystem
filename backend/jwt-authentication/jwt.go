@@ -84,6 +84,25 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+
+func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := ValidateJWTFromRequest(r)
+		role, err := GetRoleFromRequest(r)
+		if err != nil || (role != "worker" && role != "admin") {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if err != nil {
+			http.Error(w, "Invalid or missing token", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
 // Retrieves and validates the JWT token from the request cookie.
 func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 	cookie, err := r.Cookie("token")

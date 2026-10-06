@@ -49,3 +49,35 @@ func CreateTicketHandler(w http.ResponseWriter, r *http.Request) {
 		"claimed_by_user_id": payload.ClaimedByUserID,
 	})
 }
+
+func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
+	if middleware.DebugFetch(w, r) {
+		return
+	}
+
+	if !middleware.VerifyIsGetMethod(w, r) {
+		return
+	}
+
+	rows, err := db.Query(db.GetTickets)
+	if err != nil {
+		http.Error(w, "Failed to fetch tickets", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var tickets []domain.TicketRequest
+	for rows.Next() {
+		var ticket domain.TicketRequest
+		err := rows.Scan(&ticket.TicketID, &ticket.UserID, &ticket.Email, &ticket.PriorityLevel, &ticket.Category, &ticket.Platform, &ticket.Subject, &ticket.Issue, &ticket.ClaimedByUserID)
+		if err != nil {
+			http.Error(w, "Failed to scan ticket", http.StatusInternalServerError)
+			return
+		}
+		tickets = append(tickets, ticket)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tickets)
+
+}

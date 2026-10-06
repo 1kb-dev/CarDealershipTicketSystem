@@ -24,11 +24,23 @@ const FindUserRoleByEmail = `
 	WHERE EMAIL = $1
 `
 
+const FindUserIdentityByEmail = `
+	SELECT user_id
+	FROM public.app_user
+	WHERE email = $1
+`
 const InsertTicket = `
 	INSERT INTO public.ticket
 	(user_id, pr, category, platform, subject, issue, claimed_by_user_id)
 	VALUES($1, $2, $3, $4, $5, $6, NULL)
 	RETURNING ticket_id
+`
+
+const GetTickets = `
+	SELECT t.ticket_id, t.user_id, u.email, t.pr, t.category, t.platform, t.subject, t.issue,
+	       COALESCE(claimed_by_user_id, 0) AS claimed_by_user_id
+	FROM public.ticket t
+	JOIN public.app_user u ON u.user_id = t.user_id;
 `
 
 // Allow query calls from handlers

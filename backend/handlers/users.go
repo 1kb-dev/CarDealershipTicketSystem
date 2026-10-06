@@ -185,8 +185,9 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userID int32
-	if err := db.QueryRow(db.FindUserByEmail, email).Scan(&userID, &email); err != nil {
+	var userID int64
+	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID); err != nil {
+		log.Default().Printf("Error retrieving user ID for email %s: %v", email, err)
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
