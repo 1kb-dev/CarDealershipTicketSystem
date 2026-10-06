@@ -13,7 +13,7 @@ import (
 
 const sessionDuration = 24 * time.Hour
 
-// Sets a secure HTTP cookie containing the JWT token for authenticated sessions.
+// setupSecureCookies sets an HTTP-only cookie containing the JWT token for an authenticated session.
 func setupSecureCookies(w http.ResponseWriter, ts string) {
 	secure := os.Getenv("APP_ENV") == "production"
 	http.SetCookie(w, &http.Cookie{
@@ -27,7 +27,7 @@ func setupSecureCookies(w http.ResponseWriter, ts string) {
 	})
 }
 
-// Removes the authentication token by clearing the JWT cookie.
+// ClearJwtToken removes the authentication token by expiring the JWT cookie.
 func ClearJwtToken(w http.ResponseWriter) {
 	secure := os.Getenv("APP_ENV") == "production"
 	http.SetCookie(w, &http.Cookie{
@@ -42,7 +42,7 @@ func ClearJwtToken(w http.ResponseWriter) {
 	})
 }
 
-// Generates a JWT token for a user and stores it in a secure cookie.
+// CreateJwtToken generates a signed JWT for a user and stores it in an HTTP-only cookie.
 func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 	if p.Email == "" {
 		return errors.New("missing email")
@@ -69,8 +69,8 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 	return nil
 }
 
-// Wraps an HTTP handler to require valid JWT authentication before execution.
-func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
+// ProtectedAdminHandler wraps an HTTP handler and allows only authenticated users with the admin role to execute it.
+func ProtectedAdminHandler(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
@@ -84,13 +84,14 @@ func ProtectedHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-
+// ProtectedClientHandler wraps an HTTP handler and allows authenticated workers, administrators, and guests to execute it.
 func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
 		if err != nil || (role != "worker" && role != "admin" && role != "guest") {
-			http.Error(w, "Unauthorized role: "+role, http.StatusUnauthorized)
+			log.Printf("DB error: ")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
@@ -98,7 +99,7 @@ func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// Retrieves and validates the JWT token from the request cookie.
+// ValidateJWTFromRequest retrieves and validates the JWT token from the request cookie.
 func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 	cookie, err := r.Cookie("token")
 	if err != nil {
@@ -119,7 +120,7 @@ func ValidateJWTFromRequest(r *http.Request) (*jwt.Token, error) {
 	})
 }
 
-// GetRoleFromRequest returns the role stored in the authenticated JWT cookie.
+// GetRoleFromRequest validates the request token and returns its role claim.
 func GetRoleFromRequest(r *http.Request) (string, error) {
 	token, err := ValidateJWTFromRequest(r)
 	if err != nil {

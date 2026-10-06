@@ -3,7 +3,7 @@ package db
 import "database/sql"
 
 const FindUserByEmail = `
-	SELECT user_id, email
+	SELECT user_id, email, "password", role
 	FROM public.app_user
 	WHERE email = $1
 `
@@ -13,6 +13,12 @@ const CheckIfEmailAlreadyRegistered = `
 	FROM public.app_user
 	WHERE email = $1
 `
+const CheckIfPasswordIsValid = `
+	SELECT "password"
+	FROM public.app_user
+	WHERE email = $1
+`
+
 const InsertUser = `
 	INSERT INTO public.app_user
 	(email, "password")

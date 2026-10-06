@@ -64,10 +64,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	payload.Email = normalEmail
 
-	row := db.QueryRow(db.FindUserByEmail, payload.Email)
+	emailRow := db.QueryRow(db.FindUserByEmail, payload.Email)
 
 	var u domain.UserAuth
-	if middleware.ValidateUserQueryScan(w, row, &u) {
+	if middleware.ValidateUserQueryScan(w, emailRow, &u) {
 		return
 	}
 

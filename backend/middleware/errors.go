@@ -50,8 +50,9 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
+// wasd
 func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
-	if err := row.Scan(&u.UserID, &u.Email); err != nil {
+	if err := row.Scan(&u.UserID, &u.Email, &u.PasswordHash, &u.Role); err != nil {
 		log.Printf("ValidateUserQueryScan error: %v", err)
 		if err == sql.ErrNoRows {
 			log.Printf("ValidateUserQueryScan: invalid credentials: %v", err)
@@ -68,6 +69,8 @@ func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAu
 }
 
 // Verifies the user's role.
+func VerifyUserRole() {
+}
 
 // Ensures the request is a GET.
 func VerifyIsGetMethod(w http.ResponseWriter, r *http.Request) bool {
@@ -106,7 +109,7 @@ func CheckInternalServerStatus(w http.ResponseWriter, err error) bool {
 func ValidateLendQueryScan(w http.ResponseWriter, rows *sql.Rows, dest ...any) bool {
 	if scanErr := rows.Scan(dest...); scanErr != nil {
 		log.Printf("ValidateLendQueryScan: scan error: %v", scanErr)
-		http.Error(w, scanErr.Error(), http.StatusInternalServerError)
+		http.Error(w, "Scan error", http.StatusInternalServerError)
 		return true
 	}
 
