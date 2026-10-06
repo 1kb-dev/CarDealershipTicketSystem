@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"backend/domain"
 	models "backend/domain"
 	"database/sql"
 	"encoding/json"
@@ -114,6 +115,27 @@ func VerifyRowsQueried(w http.ResponseWriter, rows *sql.Rows) bool {
 	}
 
 	return false
+}
+
+// VerufyNonDuplicateTicket checks by row count if ticket passes duplication verification.
+func VerifyNonDuplicateTicket(w http.ResponseWriter, row *sql.Row, t *domain.TicketRequest) bool {
+	var existingIssue string
+	if err := row.Scan(&t.TicketID, &existingIssue); err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Failed to create ticket", http.StatusInternalServerError)
+			return false
+		}
+
+		http.Error(w, "DB error", http.StatusInternalServerError)
+		return false
+	}
+
+	if existingIssue == t.Issue {
+		http.Error(w, "Ticket already exists", http.StatusConflict)
+		return true
+	}
+
+	return true
 }
 
 // ScanExistingUsername retrieves an existing username to support "already taken" validation.
