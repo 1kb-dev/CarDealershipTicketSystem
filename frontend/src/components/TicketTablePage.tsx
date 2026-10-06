@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import GetTickets from "../hooks/getTickets";
 
-interface Ticket {
+export interface Ticket {
   priority_level: number;
   ticket_id: number;
   user_id: number;
@@ -16,37 +17,20 @@ interface TicketTableProps {
 
 type TicketFilter = "all" | "yours" | "user";
 
-const tickets: Ticket[] = [
-  {
-    priority_level: 1,
-    ticket_id: 1048,
-    user_id: 17,
-    email: "jordan.lee@example.com",
-    category: "Account and access",
-    subject: "Unable to update my account email",
-  },
-  {
-    priority_level: 2,
-    ticket_id: 1047,
-    user_id: 24,
-    email: "casey.morgan@example.com",
-    category: "Technical issue",
-    subject: "Dashboard does not load after sign in",
-  },
-  {
-    priority_level: 3,
-    ticket_id: 1046,
-    user_id: 17,
-    email: "jordan.lee@example.com",
-    category: "General question",
-    subject: "Question about support coverage",
-  },
-];
-
 const TicketTable = ({ user_id, username }: TicketTableProps) => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [filter, setFilter] = useState<TicketFilter>("all");
   const [userFilter, setUserFilter] = useState("");
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    GetTickets().then((fetchedTickets) => {
+      if (fetchedTickets) {
+        console.log("Fetched tickets:", fetchedTickets);
+        setTickets(fetchedTickets);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {

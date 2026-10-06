@@ -169,8 +169,8 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userID int64
-	var username string
-	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &username); err != nil {
+	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID); err != nil {
+		log.Default().Printf("Error retrieving user ID for email %s: %v", email, err)
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
 	}
@@ -180,6 +180,6 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"authenticated": true,
 		"userId":        userID,
-		"username":      username,
+		"email":      email,
 	})
 }

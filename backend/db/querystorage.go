@@ -9,7 +9,7 @@ const FindUserByEmail = `
 `
 
 const FindUserIdentityByEmail = `
-	SELECT user_id, email
+	SELECT user_id
 	FROM public.app_user
 	WHERE email = $1
 `
