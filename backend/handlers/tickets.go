@@ -24,6 +24,10 @@ func CreateTicketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if payload.PriorityLevel == 0 {
+		payload.PriorityLevel = 5
+	}
+
 	row := db.QueryRow(db.InsertTicket, payload.UserID, payload.PriorityLevel,
 		payload.Category, payload.Platform, payload.Subject, payload.Issue)
 	if err := row.Scan(&payload.TicketID); err != nil {
