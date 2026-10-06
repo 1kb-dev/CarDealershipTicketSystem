@@ -90,7 +90,7 @@ func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
 		_, err := ValidateJWTFromRequest(r)
 		role, err := GetRoleFromRequest(r)
 		if err != nil || (role != "worker" && role != "admin" && role != "guest") {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized role: "+role, http.StatusUnauthorized)
 			return
 		}
 

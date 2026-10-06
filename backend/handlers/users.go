@@ -57,13 +57,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-	passwdHash, err := middleware.HashPassword(w, payload.Password)
-	if err != nil {
-		return
-	}
-	payload.Password = passwdHash
-
 	normalEmail, invalidEmail := NormalizeEmail(w, payload.Email)
 	if invalidEmail {
 		return
@@ -78,8 +71,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := middleware.CompareHashAndSecret(u.PasswordHash, payload.Password); err != nil {
-	http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-	return
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
 	}
 
 	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: u.Email, Role: u.Role}); err != nil {
@@ -91,9 +84,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
-		"status":   "authenticated",
-		"userId":   u.UserID,
-		"email": 	u.Email,
+		"status": "authenticated",
+		"userId": u.UserID,
+		"email":  u.Email,
 	})
 }
 
@@ -196,7 +189,7 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]any{
 		"authenticated": true,
-		"userId": 		userID,
-		"email": 		email,
+		"userId":        userID,
+		"email":         email,
 	})
 }

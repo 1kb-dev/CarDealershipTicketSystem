@@ -3,7 +3,7 @@ package db
 import "database/sql"
 
 const FindUserByEmail = `
-	SELECT user_id, email
+	SELECT user_id, email, "password", role
 	FROM public.app_user
 	WHERE email = $1
 `
