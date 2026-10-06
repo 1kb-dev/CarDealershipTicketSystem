@@ -36,6 +36,12 @@ const InsertTicket = `
 	VALUES($1, $2, 5, $3, $4, $5, 0)
 `
 
+const GetTickets = `
+	SELECT ticket_id, user_id, pr, category, platform, subject, issue,
+	       COALESCE(claimed_by_user_id, 0) AS claimed_by_user_id
+	FROM public.ticket;
+`
+
 // Allow query calls from handlers
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
 	return db.Query(query, args...)

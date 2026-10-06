@@ -23,15 +23,36 @@ func CreateTicketHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-type TicketRequest struct {
-	TicketID			int16	    	`json:"ticket_id"`
-	UserID				int16			`json:"user_id"`
-	PriorityLevel  		int8           	`json:"priority_level"`
-	Category       		string       	`json:"category"`
-	Platform 			string 			`json:"platform"`
-	Subject       		string       	`json:"subject"`
-	Issue         		string       	`json:"issue"`
-	ClaimedByUserID		int16       	`json:"claimed_by_user_id"`
 }
-	row := db.QueryRow(db.CreateTicket, payload.Category, payload.Platform, payload.Subject, payload.Issue, payload.ClaimedByUserID)
+
+func GetTicketsHandler(w http.ResponseWriter, r *http.Request) {
+	if middleware.DebugFetch(w, r) {
+		return
+	}
+
+	if !middleware.VerifyIsGetMethod(w, r) {
+		return
+	}
+
+	rows, err := db.Query(db.GetTickets)
+	if err != nil {
+		http.Error(w, "Failed to fetch tickets", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var tickets []domain.TicketRequest
+	for rows.Next() {
+		var ticket domain.TicketRequest
+		err := rows.Scan(&ticket.TicketID, &ticket.UserID, &ticket.PriorityLevel, &ticket.Category, &ticket.Platform, &ticket.Subject, &ticket.Issue, &ticket.ClaimedByUserID)
+		if err != nil {
+			http.Error(w, "Failed to scan ticket", http.StatusInternalServerError)
+			return
+		}
+		tickets = append(tickets, ticket)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tickets)
+
 }
