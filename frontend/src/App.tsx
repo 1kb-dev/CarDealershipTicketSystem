@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import LoginFormPage from "./components/LoginFormPage";
 import IntroPage from "./components/IntroPage";
@@ -6,6 +6,7 @@ import CreateTicketFormPage from "./components/CreateTicketFormPage";
 import TicketTablePage from "./components/TicketTablePage";
 import TicketDetailsPage from "./components/TicketDetailsPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import CheckSession from "./services/SessionService";
 
 export interface User {
   userId: number;
@@ -14,6 +15,12 @@ export interface User {
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    void CheckSession().then((sessionUser) => {
+      if (sessionUser) setUser(sessionUser);
+    });
+  }, []);
 
   return (
     <BrowserRouter>

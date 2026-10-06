@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // EmailHandler is a helper to the RegisterHandler function, providing checks for emails.
@@ -53,8 +55,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//if err := middleware.CompareHashAndSecret(u.PasswordHash, payload.Password); err != nil {
-		//http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		//return
+	//http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+	//return
 	//}
 
 	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: u.Email, Role: u.Role}); err != nil {
@@ -67,7 +69,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":   "authenticated",
-		"userId":  u.UserID,
+		"userId":   u.UserID,
 		"username": u.Username,
 	})
 }
@@ -150,10 +152,34 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := jwtauth.ValidateJWTFromRequest(r)
-	authenticated := err == nil
+	token, err := jwtauth.ValidateJWTFromRequest(r)
+	if err != nil {
+		jwtauth.ClearJwtToken(w)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	email, emailOK := claims["email"].(string)
+	if !ok || !emailOK || email == "" {
+		http.Error(w, "Invalid session claims", http.StatusUnauthorized)
+		return
+	}
+
+	var userID int64
+	var username string
+	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &username); err != nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]bool{"authenticated": authenticated})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"authenticated": true,
+		"userId":        userID,
+		"username":      username,
+	})
 }

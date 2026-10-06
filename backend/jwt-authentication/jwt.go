@@ -10,13 +10,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const sessionDuration = 24 * time.Hour
+
 // Sets a secure HTTP cookie containing the JWT token for authenticated sessions.
 func setupSecureCookies(w http.ResponseWriter, ts string) {
 	secure := os.Getenv("APP_ENV") == "production"
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    ts,
-		Expires:  time.Now().Add(time.Hour * 24),
+		Expires:  time.Now().Add(sessionDuration),
 		HttpOnly: true,
 		Secure:   secure,
 		SameSite: http.SameSiteStrictMode,
@@ -51,9 +53,9 @@ func CreateJwtToken(w http.ResponseWriter, p *domain.RegisterRequest) error {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": 	p.Email,
-		"role": 	p.Role,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"email": p.Email,
+		"role":  p.Role,
+		"exp":   time.Now().Add(sessionDuration).Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtKey)
