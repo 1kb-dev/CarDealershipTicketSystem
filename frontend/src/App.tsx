@@ -32,7 +32,7 @@ function App() {
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
         <Route
           path="/register"
-          element={<RegisterFormPage setUser={setUser} />}
+          element={<RegisterFormPage />}
         />
 
         {user ? (

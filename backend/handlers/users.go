@@ -143,15 +143,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := jwtauth.CreateJwtToken(w, &domain.RegisterRequest{Email: payload.Email}); err != nil {
-		log.Printf("CreateJwtToken error: %v", err)
-		http.Error(w, "Failed to create session", http.StatusInternalServerError)
-		return
-	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"status": "registered"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "registered", "message": "User registered successfully"})
 }
 
 // SessionHandler checks if the current user has a valid session by verifying their JWT token.
