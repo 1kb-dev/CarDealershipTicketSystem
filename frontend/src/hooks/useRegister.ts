@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-// Change this to match your Go server's route.
-const REGISTER_URL = "/api/register";
-
 export interface RegisterCredentials {
   email: string;
   password: string;
@@ -40,7 +37,7 @@ export const useRegister = (): UseRegisterResult => {
     setError(null);
 
     try {
-      const response = await fetch(REGISTER_URL, {
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

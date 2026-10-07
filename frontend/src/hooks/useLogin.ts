@@ -1,9 +1,6 @@
 import { useState } from "react";
 import type { User } from "../App";
 
-// Change this to match your Go server's route.
-const LOGIN_URL = "/api/login";
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -45,7 +42,7 @@ export const useLogin = ({
     setError(null);
 
     try {
-      const response = await fetch(LOGIN_URL, {
+      const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -79,7 +76,11 @@ export const useLogin = ({
       };
 
       if (result.userId !== null) {
-        onSuccess?.({ userId: result.userId, email: result.email });
+        onSuccess?.({
+          userId: result.userId,
+          email: result.email,
+          role: "",
+        });
       }
       return result;
     } catch (err: unknown) {

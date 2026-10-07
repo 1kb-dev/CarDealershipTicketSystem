@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-const CREATE_TICKET_URL = "/api/create-ticket";
-
 export interface TicketDetails {
   ticket_id: number;
   user_id: number;
@@ -50,7 +48,7 @@ export const useTicketCreator = ({
     setError(null);
 
     try {
-      const response = await fetch(CREATE_TICKET_URL, {
+      const response = await fetch("/api/create-ticket", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

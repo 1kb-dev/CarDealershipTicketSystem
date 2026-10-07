@@ -1,7 +1,7 @@
 export default function useClaimTicket() {
   try {
     const claimTicket = async (ticketId: number, userId: number) => {
-      const response = await fetch("/api/ticket/claim", {
+      const response = await fetch("/api/claim-ticket", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
