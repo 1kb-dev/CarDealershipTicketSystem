@@ -10,5 +10,11 @@ type TicketRequest struct {
 	Platform        string `json:"platform"`
 	Subject         string `json:"subject"`
 	Issue           string `json:"issue"`
-	ClaimedByUserID int16  `json:"claimed_by_user_id"`
+	ClaimedByUserMail string `json:"claimed_by_user_mail"`
+}
+
+// handlers.ClaimTicketHandler
+type ClaimTicketRequest struct {
+	TicketID int32 `json:"ticket_id"`
+	UserID   int16 `json:"user_id"`
 }

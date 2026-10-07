@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { Ticket } from "./TicketTablePage";
+import useClaimTicket from "../hooks/useClaimTicket";
+import type { User } from "../App";
 
 interface TicketDetailsProps {
   go_back: React.Dispatch<React.SetStateAction<Ticket | null>>;
+  setEmail: (email: string) => void;
+  user: User;
   priority_level?: number;
   ticket_id?: number;
-  claimed_by_user_id?: number | null;
+  claimed_by_user_mail?: string | null;
   email?: string;
   category?: string;
   platform?: string;
@@ -15,19 +19,57 @@ interface TicketDetailsProps {
 
 const TicketDetails = ({
   go_back,
+  setEmail,
+  user,
   priority_level,
   ticket_id,
-  claimed_by_user_id,
+  claimed_by_user_mail,
   email,
   category,
   platform,
   subject,
   issue,
 }: TicketDetailsProps) => {
-  const [isClaimed, setIsClaimed] = useState(Boolean(claimed_by_user_id));
+  const [isClaimed, setIsClaimed] = useState(Boolean(claimed_by_user_mail));
   const [isClosed, setIsClosed] = useState(false);
-  const claimedBy = isClaimed ? (email ?? "You") : "Unassigned";
+  console.log("TicketDetails props:", {
+    go_back,
+    user,
+    priority_level,
+    ticket_id,
+    claimed_by_user_mail,
+    email,
+    category,
+    platform,
+    subject,
+    issue,
+  });
+  const claimedBy = isClaimed ? claimed_by_user_mail || "You" : "Unassigned";
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
+  const { claimTicket } = useClaimTicket();
+
+  const handleClaimTicket = async () => {
+    console.log(
+      "handleClaimTicket: ticket_id:",
+      ticket_id,
+      "userId:",
+      user.userId,
+    );
+    if (ticket_id && user.userId) {
+      try {
+        if (!claimTicket) {
+          throw new Error("claimTicket function is not available");
+        }
+        setEmail(user.email);
+        await claimTicket(ticket_id, user.userId);
+        setIsClaimed(true);
+      } catch (error) {
+        console.error("Error claiming ticket:", error);
+      }
+    } else {
+      console.error("Ticket ID or User ID is missing");
+    }
+  };
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -65,7 +107,7 @@ const TicketDetails = ({
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden text-sm text-slate-600 sm:block">
-              {email}
+              {user.email}
             </span>
             <details className="relative" ref={accountMenuRef}>
               <summary className="cursor-pointer list-none rounded-md px-2 py-1 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2">
@@ -110,7 +152,7 @@ const TicketDetails = ({
             <button
               className="rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-300"
               disabled={isClaimed || isClosed}
-              onClick={() => setIsClaimed(true)}
+              onClick={handleClaimTicket}
               type="button"
             >
               {isClaimed ? "Claimed" : "Claim ticket"}

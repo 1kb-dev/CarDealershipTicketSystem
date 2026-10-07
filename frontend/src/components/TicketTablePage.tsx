@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import GetTickets from "../hooks/getTickets";
 import { useNavigate } from "react-router-dom";
 import TicketDetails from "./TicketDetailsPage";
+import type { User } from "../App";
 
 export interface Ticket {
   priority_level: number;
@@ -12,16 +13,16 @@ export interface Ticket {
   platform: string;
   subject: string;
   issue: string;
-  claimed_by_user_id: number;
+  claimed_by_user_mail: string | null;
 }
 
 interface TicketTableProps {
-  email: string;
+  user: User;
 }
 
 type TicketFilter = "all" | "search";
 
-const TicketTable = ({ email }: TicketTableProps) => {
+const TicketTable = ({ user }: TicketTableProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<TicketFilter>("all");
@@ -74,9 +75,22 @@ const TicketTable = ({ email }: TicketTableProps) => {
     (selectedTicket && (
       <TicketDetails
         go_back={setSelectedTicket}
+        setEmail={(email) => {
+          setSelectedTicket((ticket) =>
+            ticket ? { ...ticket, email, claimed_by_user_mail: email } : ticket,
+          );
+          setTickets((currentTickets) =>
+            currentTickets.map((ticket) =>
+              ticket.ticket_id === selectedTicket.ticket_id
+                ? { ...ticket, email, claimed_by_user_mail: email }
+                : ticket,
+            ),
+          );
+        }}
+        user={user}
         priority_level={selectedTicket.priority_level}
         ticket_id={selectedTicket.ticket_id}
-        claimed_by_user_id={selectedTicket.claimed_by_user_id}
+        claimed_by_user_mail={selectedTicket.claimed_by_user_mail}
         email={selectedTicket.email}
         category={selectedTicket.category}
         platform={selectedTicket.platform}
@@ -108,7 +122,7 @@ const TicketTable = ({ email }: TicketTableProps) => {
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden text-sm text-slate-600 sm:block">
-                {email}
+                {user.email}
               </span>
               <details className="relative" ref={accountMenuRef}>
                 <summary className="cursor-pointer list-none rounded-md px-2 py-1 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2">

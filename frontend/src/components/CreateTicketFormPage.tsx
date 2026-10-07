@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { useTicketCreator } from "../hooks/useTicketCreator";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface CreateTicketFormProps {
   user_id: number;

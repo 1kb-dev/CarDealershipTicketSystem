@@ -84,6 +84,20 @@ func ProtectedAdminHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func ProtectedWorkerHandler(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := ValidateJWTFromRequest(r)
+		role, err := GetRoleFromRequest(r)
+		if err != nil || (role != "admin" && role != "worker") {
+			log.Printf("Invalid or missing token: %v", err)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
 // ProtectedClientHandler wraps an HTTP handler and allows authenticated workers, administrators, and guests to execute it.
 func ProtectedClientHandler(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -44,9 +44,18 @@ const InsertTicket = `
 
 const GetTickets = `
 	SELECT t.ticket_id, t.user_id, u.email, t.pr, t.category, t.platform, t.subject, t.issue,
-	       COALESCE(claimed_by_user_id, 0) AS claimed_by_user_id
+	       COALESCE(t.claimed_by_user_id, 0) AS claimed_by_user_id,
+	       claimed_user.email AS claimed_by_email
 	FROM public.ticket t
-	JOIN public.app_user u ON u.user_id = t.user_id;
+	JOIN public.app_user u ON u.user_id = t.user_id
+	LEFT JOIN public.app_user claimed_user
+	       ON claimed_user.user_id = t.claimed_by_user_id;
+`
+
+const ClaimTicket = `
+	UPDATE public.ticket
+	SET claimed_by_user_id = $2
+	WHERE ticket_id = $1
 `
 
 // Allow query calls from handlers

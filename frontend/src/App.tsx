@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import IntroPage from "./components/IntroPage";
 import LoginFormPage from "./components/LoginFormPage";
 import RegisterFormPage from "./components/RegisterFormPage";
 import CreateTicketFormPage from "./components/CreateTicketFormPage";
 import TicketTablePage from "./components/TicketTablePage";
-import TicketDetailsPage from "./components/TicketDetailsPage";
 import ServiceLevelAgreement from "./components/ServiceLevelAgreement";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CheckSession from "./services/SessionService";
@@ -30,10 +29,7 @@ function App() {
         <Route path="/" element={<IntroPage />} />
         <Route path="/sla" element={<ServiceLevelAgreement />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
-        <Route
-          path="/register"
-          element={<RegisterFormPage />}
-        />
+        <Route path="/register" element={<RegisterFormPage />} />
 
         {user ? (
           <>
@@ -41,12 +37,7 @@ function App() {
               path="/create-ticket"
               element={<CreateTicketFormPage user_id={user.userId} />}
             />
-            <Route
-              path="/tickets"
-              element={<TicketTablePage email={user.email} />}
-            />
-            <Route path="/ticket-details" element={<TicketDetailsPage />} />
-            {/* to be "/ticket-{ticket_id}-details" */}
+            <Route path="/tickets" element={<TicketTablePage user={user} />} />
           </>
         ) : (
           <>
