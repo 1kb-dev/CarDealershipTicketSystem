@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { Ticket } from "./TicketTablePage";
 
 interface TicketDetailsProps {
+  go_back: React.Dispatch<React.SetStateAction<Ticket | null>>;
   priority_level?: number;
   ticket_id?: number;
   claimed_by_user_id?: number | null;
@@ -12,6 +14,7 @@ interface TicketDetailsProps {
 }
 
 const TicketDetails = ({
+  go_back,
   priority_level,
   ticket_id,
   claimed_by_user_id,
@@ -61,12 +64,6 @@ const TicketDetails = ({
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <a
-              className="text-sm font-medium text-slate-500 transition hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2"
-              href="/tickets"
-            >
-              Back to tickets
-            </a>
             <span className="hidden text-sm text-slate-600 sm:block">
               {email}
             </span>
@@ -88,6 +85,15 @@ const TicketDetails = ({
       </header>
 
       <section className="mx-auto max-w-5xl px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
+        <button
+          className="mb-8 inline-flex items-center gap-2 rounded-md border border-blue-700 bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2"
+          onClick={() => go_back(null)}
+          type="button"
+        >
+          <span aria-hidden="true">←</span>
+          Back to tickets
+        </button>
+
         <div className="flex flex-col gap-6 border-b border-slate-200 pb-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">
