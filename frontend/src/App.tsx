@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import IntroPage from "./components/IntroPage";
 import LoginFormPage from "./components/LoginFormPage";
@@ -30,10 +30,7 @@ function App() {
         <Route path="/" element={<IntroPage />} />
         <Route path="/sla" element={<ServiceLevelAgreement />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
-        <Route
-          path="/register"
-          element={<RegisterFormPage />}
-        />
+        <Route path="/register" element={<RegisterFormPage />} />
 
         {user ? (
           <>
@@ -45,7 +42,12 @@ function App() {
               path="/tickets"
               element={<TicketTablePage email={user.email} />}
             />
-            <Route path="/ticket-details" element={<TicketDetailsPage />} />
+            <Route
+              path="/ticket-details"
+              element={
+                <TicketDetailsPage go_back={() => window.history.back()} />
+              }
+            />
             {/* to be "/ticket-{ticket_id}-details" */}
           </>
         ) : (
