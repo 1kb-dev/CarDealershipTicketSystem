@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { User } from "../App";
 
 // Change this to match your Go server's route.
 const REGISTER_URL = "/api/register";
@@ -21,10 +20,6 @@ interface ApiBody {
   userId?: number | null;
 }
 
-interface UseRegisterOptions {
-  onSuccess?: (user: User) => void;
-}
-
 interface UseRegisterResult {
   register: (
     credentials: RegisterCredentials,
@@ -33,9 +28,7 @@ interface UseRegisterResult {
   error: string | null;
 }
 
-export const useRegister = ({
-  onSuccess,
-}: UseRegisterOptions = {}): UseRegisterResult => {
+export const useRegister = (): UseRegisterResult => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,9 +73,6 @@ export const useRegister = ({
         userId: data?.userId ?? null,
       };
 
-      if (result.userId !== null) {
-        onSuccess?.({ userId: result.userId, email: result.email });
-      }
       return result;
     } catch (err: unknown) {
       if (err instanceof TypeError) {

@@ -1,24 +1,12 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
-// Adjust the path to match your project structure.
 import { useRegister } from "../hooks/useRegister";
-import { useNavigate } from "react-router-dom";
-import type { User } from "../App";
 
 const COMPANY_NAME = "AA Car Dealership";
 
-interface RegisterFormPageProps {
-  setUser: (user: User | null) => void;
-}
-
-const RegisterFormPage = ({ setUser }: RegisterFormPageProps) => {
-  const navigate = useNavigate();
-  const { register, isLoading, error } = useRegister({
-    onSuccess: (user) => {
-      setUser(user);
-      navigate("/");
-    },
-  });
+const RegisterFormPage = () => {
+  const { register, isLoading, error } = useRegister();
+  const [submitted, setSubmitted] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -26,7 +14,12 @@ const RegisterFormPage = ({ setUser }: RegisterFormPageProps) => {
   const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isLoading) return;
-    void register({ email, password });
+    setSubmitted(false);
+    void register({ email, password }).then((result) => {
+      if (result) {
+        setSubmitted(true);
+      }
+    });
   };
 
   return (
@@ -80,6 +73,15 @@ const RegisterFormPage = ({ setUser }: RegisterFormPageProps) => {
           <p className="mt-2 text-sm text-slate-600">
             Use your work email and password to continue.
           </p>
+
+          {submitted && (
+            <div
+              role="status"
+              className="mt-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            >
+              Registration successful. The new account has been creacted.
+            </div>
+          )}
 
           {error && (
             <div
