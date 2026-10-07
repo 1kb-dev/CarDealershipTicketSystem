@@ -6,6 +6,7 @@ import RegisterFormPage from "./components/RegisterFormPage";
 import CreateTicketFormPage from "./components/CreateTicketFormPage";
 import TicketTablePage from "./components/TicketTablePage";
 import TicketDetailsPage from "./components/TicketDetailsPage";
+import ServiceLevelAgreement from "./components/ServiceLevelAgreement";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CheckSession from "./services/SessionService";
 
@@ -27,6 +28,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<IntroPage />} />
+        <Route path="/sla" element={<ServiceLevelAgreement />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
         <Route
           path="/register"
