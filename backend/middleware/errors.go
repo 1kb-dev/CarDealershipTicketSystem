@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"backend/db"
 	models "backend/domain"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -53,14 +55,13 @@ func DebugFetch(w http.ResponseWriter, r *http.Request) bool {
 // wasd
 func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
 	if err := row.Scan(&u.UserID, &u.Email, &u.PasswordHash, &u.Role); err != nil {
-		log.Printf("ValidateUserQueryScan error: %v", err)
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			log.Printf("ValidateUserQueryScan: invalid credentials: %v", err)
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return true
 		}
-
-		log.Printf("internal server error: %v", err)
+		
+		log.Printf("ValidateUserQueryScan error: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return true
 	}
@@ -68,8 +69,21 @@ func ValidateUserQueryScan(w http.ResponseWriter, row *sql.Row, u *models.UserAu
 	return false
 }
 
-// Verifies the user's role.
-func VerifyUserRole() {
+// Verifies the user hass the 'Admin' role.
+func VerifyHasAdminRole(w http.ResponseWriter, row *sql.Row, u *models.UserAuth) bool {
+	if err := row.Scan(db.FindUserRoleByEmail, &u.Email); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("VerifyHasAdminRole: invalid user role: %q", err)
+			http.Error(w, "Invalid user role", http.StatusForbidden)
+			return false
+		}
+
+		log.Printf("VerifyHasAdminRole error: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return false
+	}
+
+	return true
 }
 
 // Ensures the request is a GET.
@@ -132,7 +146,7 @@ func VerifyRowsQueried(w http.ResponseWriter, rows *sql.Rows) bool {
 func ScanExistingEmail(w http.ResponseWriter, row *sql.Row) (string, bool) {
 	var existingEmail string
 	if err := row.Scan(&existingEmail); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return "", false
 		}
 
@@ -164,7 +178,7 @@ func ValidateEmailAvailability(w http.ResponseWriter, row *sql.Row, e *models.Re
 func ScanExistence(w http.ResponseWriter, row *sql.Row) (bool, bool) {
 	var count int
 	if err := row.Scan(&count); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return false, false // No row means not found, no error
 		}
 

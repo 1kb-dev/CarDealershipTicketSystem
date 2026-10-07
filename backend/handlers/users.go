@@ -116,6 +116,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if middleware.VerifyHasAdminRole(w, r) {
+		return
+	}
+
 	var payload domain.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
