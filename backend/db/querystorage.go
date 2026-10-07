@@ -31,7 +31,7 @@ const FindUserRoleByEmail = `
 `
 
 const FindUserIdentityByEmail = `
-	SELECT user_id
+	SELECT user_id, role
 	FROM public.app_user
 	WHERE email = $1
 `

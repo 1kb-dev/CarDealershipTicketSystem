@@ -115,14 +115,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if !middleware.VerifyIsPostMethod(w, r) {
 		return
 	}
-
-	if middleware.VerifyHasAdminRole(w, r) {
-		return
-	}
-
+	
 	var payload domain.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	var roleAuth domain.UserAuth
+	roleRow := db.QueryRow(db.FindUserRoleByEmail, payload.Email)
+	if middleware.VerifyHasAdminRole(w, roleRow, &roleAuth) {
 		return
 	}
 
@@ -178,8 +180,9 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userID int64
-	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID); err != nil {
+	var userID int32
+	var role string
+	if err := db.QueryRow(db.FindUserIdentityByEmail, email).Scan(&userID, &role); err != nil {
 		log.Default().Printf("Error retrieving user ID for email %s: %v", email, err)
 		http.Error(w, "User not found", http.StatusUnauthorized)
 		return
@@ -191,5 +194,6 @@ func SessionHandler(w http.ResponseWriter, r *http.Request) {
 		"authenticated": true,
 		"userId":        userID,
 		"email":         email,
+		"role": 		 role,
 	})
 }

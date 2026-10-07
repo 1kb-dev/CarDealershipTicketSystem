@@ -13,6 +13,7 @@ import CheckSession from "./services/SessionService";
 export interface User {
   userId: number;
   email: string;
+  role: string;
 }
 
 const sessionUser = await CheckSession().catch(() => null);
@@ -20,7 +21,11 @@ const sessionUser = await CheckSession().catch(() => null);
 function App() {
   const [user, setUser] = useState<User | null>(
     sessionUser
-      ? { userId: sessionUser.userId, email: sessionUser.email }
+      ? {
+          userId: sessionUser.userId,
+          email: sessionUser.email,
+          role: sessionUser.role,
+        }
       : null,
   );
 
@@ -30,10 +35,18 @@ function App() {
         <Route path="/" element={<IntroPage />} />
         <Route path="/sla" element={<ServiceLevelAgreement />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
-        <Route path="/register" element={<RegisterFormPage />} />
 
         {user ? (
           <>
+            {user.role === "admin" ? (
+              <Route path="/register" element={<RegisterFormPage />} />
+            ) : (
+              <Route
+                path="/register"
+                element={<LoginFormPage setUser={setUser} />}
+              />
+            )}
+
             <Route
               path="/create-ticket"
               element={<CreateTicketFormPage user_id={user.userId} />}
@@ -48,10 +61,13 @@ function App() {
                 <TicketDetailsPage go_back={() => window.history.back()} />
               }
             />
-            {/* to be "/ticket-{ticket_id}-details" */}
           </>
         ) : (
           <>
+            <Route
+              path="/register"
+              element={<LoginFormPage setUser={setUser} />}
+            />
             <Route
               path="/create-ticket"
               element={<LoginFormPage setUser={setUser} />}
