@@ -5,7 +5,6 @@ import LoginFormPage from "./components/LoginFormPage";
 import RegisterFormPage from "./components/RegisterFormPage";
 import CreateTicketFormPage from "./components/CreateTicketFormPage";
 import TicketTablePage from "./components/TicketTablePage";
-import TicketDetailsPage from "./components/TicketDetailsPage";
 import ServiceLevelAgreement from "./components/ServiceLevelAgreement";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CheckSession from "./services/SessionService";
@@ -51,10 +50,7 @@ function App() {
               path="/create-ticket"
               element={<CreateTicketFormPage user_id={user.userId} />}
             />
-            <Route
-              path="/tickets"
-              element={<TicketTablePage email={user.email} />}
-            />
+            <Route path="/tickets" element={<TicketTablePage user={user} />} />
             <Route
               path="/ticket-details"
               element={

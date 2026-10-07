@@ -12,7 +12,10 @@ export default async function GetTickets(): Promise<Ticket[] | null> {
 
     const tickets = (await response.json()) as Ticket[];
 
-    return tickets;
+    return tickets.map((ticket) => ({
+      ...ticket,
+      claimed_by_user_mail: ticket.claimed_by_user_mail || null,
+    }));
   } catch {
     return null;
   }
