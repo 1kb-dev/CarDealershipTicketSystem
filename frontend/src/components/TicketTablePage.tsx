@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import GetTickets from "../hooks/getTickets";
+import { useNavigate } from "react-router-dom";
 
 export interface Ticket {
   priority_level: number;
@@ -25,6 +26,7 @@ const TicketTable = ({ email }: TicketTableProps) => {
   const [filter, setFilter] = useState<TicketFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadTickets = async () => {
@@ -70,7 +72,10 @@ const TicketTable = ({ email }: TicketTableProps) => {
     <main className="min-h-screen bg-white text-slate-900">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 sm:px-10 lg:px-12">
-          <div className="flex items-center gap-3">
+          <div
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3"
+          >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0F2A43] text-sm font-semibold text-white"
               aria-hidden="true"
@@ -123,6 +128,7 @@ const TicketTable = ({ email }: TicketTableProps) => {
           <button
             className="inline-flex items-center justify-center rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2"
             type="button"
+            onClick={() => navigate("/create-ticket")}
           >
             Create ticket
           </button>

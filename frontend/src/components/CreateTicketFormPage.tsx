@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { useTicketCreator } from "../hooks/useTicketCreator";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface CreateTicketFormProps {
   user_id: number;
@@ -18,8 +19,12 @@ const CreateTicketForm = ({ user_id }: CreateTicketFormProps) => {
   const [subject, setSubject] = useState("");
   const [issue, setIssue] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
   const { createTicket, isLoading, error } = useTicketCreator({
-    onSuccess: () => setSubmitted(true),
+    onSuccess: () => {
+      setSubmitted(true);
+      navigate("/tickets");
+    },
   });
 
   const clearForm = () => {
@@ -44,8 +49,10 @@ const CreateTicketForm = ({ user_id }: CreateTicketFormProps) => {
     >
       <section className="flex min-h-[260px] flex-col justify-between bg-[#0F2A43] p-8 text-white sm:p-10 lg:min-h-screen lg:p-14">
         <div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-sm font-bold tracking-wide ring-1 ring-white/25">
-            CT
+          <div onClick={() => navigate("/")}>
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-sm font-bold tracking-wide ring-1 ring-white/25">
+              CT
+            </div>
           </div>
           <p className="mt-12 text-sm font-semibold uppercase tracking-[0.18em] text-blue-100/80">
             Support desk
