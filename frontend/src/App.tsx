@@ -14,14 +14,14 @@ export interface User {
   email: string;
 }
 
-function App() {
-  const [user, setUser] = useState<User | null>(null);
+const sessionUser = await CheckSession().catch(() => null);
 
-  useEffect(() => {
-    void CheckSession().then((sessionUser) => {
-      if (sessionUser) setUser({ ...sessionUser, email: "" });
-    });
-  }, []);
+function App() {
+  const [user, setUser] = useState<User | null>(
+    sessionUser
+      ? { userId: sessionUser.userId, email: sessionUser.email }
+      : null,
+  );
 
   return (
     <BrowserRouter>
@@ -41,9 +41,7 @@ function App() {
             />
             <Route
               path="/tickets"
-              element={
-                <TicketTablePage email={user.email} />
-              }
+              element={<TicketTablePage email={user.email} />}
             />
             <Route path="/ticket-details" element={<TicketDetailsPage />} />
             {/* to be "/ticket-{ticket_id}-details" */}
