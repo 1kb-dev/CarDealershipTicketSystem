@@ -45,6 +45,7 @@ const TicketDetails = ({
     issue,
   });
   const claimedBy = isClaimed ? claimed_by_user_mail || "You" : "Unassigned";
+  const canManageTicket = user.role === "admin" || user.role === "worker";
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
   const { claimTicket } = useClaimTicket();
 
@@ -148,24 +149,26 @@ const TicketDetails = ({
               Claimed by {claimedBy}
             </p>
           </div>
-          <div className="flex shrink-0 gap-3">
-            <button
-              className="rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-300"
-              disabled={isClaimed || isClosed}
-              onClick={handleClaimTicket}
-              type="button"
-            >
-              {isClaimed ? "Claimed" : "Claim ticket"}
-            </button>
-            <button
-              className="rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-slate-400"
-              disabled={isClosed}
-              onClick={() => setIsClosed(true)}
-              type="button"
-            >
-              {isClosed ? "Closed" : "Close ticket"}
-            </button>
-          </div>
+          {canManageTicket && (
+            <div className="flex shrink-0 gap-3">
+              <button
+                className="rounded-md bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-300"
+                disabled={isClaimed || isClosed}
+                onClick={handleClaimTicket}
+                type="button"
+              >
+                {isClaimed ? "Claimed" : "Claim ticket"}
+              </button>
+              <button
+                className="rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-slate-400"
+                disabled={isClosed}
+                onClick={() => setIsClosed(true)}
+                type="button"
+              >
+                {isClosed ? "Closed" : "Close ticket"}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 grid gap-8 text-left sm:grid-cols-2">
