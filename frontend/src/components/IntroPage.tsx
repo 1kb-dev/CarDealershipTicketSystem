@@ -165,6 +165,48 @@ const IntroPage = ({ user }: IntroPageProps) => {
               </svg>
             </button>
 
+            <button
+              type="button"
+              onClick={() => navigate("/sla")}
+              className={optionClass}
+            >
+              <span className={iconTileClass}>
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <path d="M14 2v6h6M8 13h8M8 17h6" />
+                </svg>
+              </span>
+              <span className="flex-1">
+                <span className="block text-sm font-semibold text-slate-900">
+                  Service level agreement
+                </span>
+                <span className="mt-0.5 block text-sm text-slate-600">
+                  Review the terms and service commitments.
+                </span>
+              </span>
+              <svg
+                className="h-4 w-4 shrink-0 text-slate-400 group-hover:text-blue-700"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+
             {user?.role === "admin" && (
               <button
                 type="button"
