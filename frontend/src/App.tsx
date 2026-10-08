@@ -31,7 +31,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<IntroPage />} />
+        <Route path="/" element={<IntroPage user={user} />} />
         <Route path="/sla" element={<ServiceLevelAgreement />} />
         <Route path="/login" element={<LoginFormPage setUser={setUser} />} />
 

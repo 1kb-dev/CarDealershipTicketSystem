@@ -1,4 +1,11 @@
 import { useNavigate } from "react-router-dom";
+
+interface IntroPageProps {
+  user: {
+    role: string;
+  } | null;
+}
+
 const COMPANY_NAME = "Car Ticket Service";
 
 const highlights = [
@@ -13,7 +20,7 @@ const optionClass =
 const iconTileClass =
   "flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-700 text-white";
 
-const IntroPage = () => {
+const IntroPage = ({ user }: IntroPageProps) => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen grid grid-cols-1 grid-rows-[auto_1fr] bg-white text-slate-900 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:grid-rows-1">
@@ -157,6 +164,50 @@ const IntroPage = () => {
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
+
+            {user?.role === "admin" && (
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className={optionClass}
+              >
+                <span className={iconTileClass}>
+                  <svg
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M19 8v6M22 11h-6" />
+                  </svg>
+                </span>
+                <span className="flex-1">
+                  <span className="block text-sm font-semibold text-slate-900">
+                    Register a person
+                  </span>
+                  <span className="mt-0.5 block text-sm text-slate-600">
+                    Create an account for a team member.
+                  </span>
+                </span>
+                <svg
+                  className="h-4 w-4 shrink-0 text-slate-400 group-hover:text-blue-700"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </button>
+            )}
           </div>
 
           <p className="mt-8 text-sm text-slate-500">

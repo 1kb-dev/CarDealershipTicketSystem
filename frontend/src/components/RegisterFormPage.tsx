@@ -43,8 +43,8 @@ const RegisterFormPage = () => {
             Everything your team needs, in one secure place.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-blue-100/80">
-            Sign up with a work email for sponsors, proxy agents, or new workers
-            to access our internal system.
+            Set up secure access for sponsors, proxy agents, or new workers on
+            your team.
           </p>
         </div>
 
@@ -69,9 +69,11 @@ const RegisterFormPage = () => {
             </span>
           </div>
 
-          <h1 className="text-2xl font-semibold tracking-tight">Sign up</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Register a person
+          </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Use your work email and password to continue.
+            Create an account for a team member using their work email.
           </p>
 
           {submitted && (
@@ -79,7 +81,7 @@ const RegisterFormPage = () => {
               role="status"
               className="mt-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
             >
-              Registration successful. The new account has been creacted.
+              Registration successful. The new account has been created.
             </div>
           )}
 
@@ -98,7 +100,7 @@ const RegisterFormPage = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-slate-700"
               >
-                Email
+                Person&apos;s email
               </label>
               <input
                 id="email"
@@ -121,7 +123,7 @@ const RegisterFormPage = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-slate-700"
               >
-                Password
+                Initial password
               </label>
               <div className="relative mt-1.5">
                 <input
@@ -176,14 +178,13 @@ const RegisterFormPage = () => {
                   />
                 </svg>
               )}
-              {isLoading ? "Signing up…" : "Sign up"}
+              {isLoading ? "Registering…" : "Register person"}
             </button>
           </form>
 
           <p className="mt-8 text-sm text-slate-500">
-            Have questions or issues registering an account? Contact our IT
-            support team. Note that new accounts will by default be registered
-            as guests—the IT team can help with that, too.
+            New accounts are registered as guests by default. Contact IT support
+            if this person needs a different role.
           </p>
         </div>
       </main>
