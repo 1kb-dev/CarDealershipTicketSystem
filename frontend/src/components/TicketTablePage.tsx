@@ -132,6 +132,11 @@ const TicketTable = ({ user }: TicketTableProps) => {
                   <button
                     className="block w-full rounded px-3 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:bg-slate-50 focus-visible:text-slate-900"
                     type="button"
+                    onClick={() => {
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      navigate("/login");
+                    }}
                   >
                     Logout
                   </button>
