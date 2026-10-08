@@ -145,3 +145,44 @@ func ClaimTicketHandler(w http.ResponseWriter, r *http.Request) {
 		"ticket_id": payload.TicketID,
 	})
 }
+
+func CloseTicketHandler(w http.ResponseWriter, r *http.Request) {
+	if middleware.DebugFetch(w, r) {
+		return
+	}
+
+	if !middleware.VerifyIsPostMethod(w, r) {
+		return
+	}
+
+	var payload domain.ClaimTicketRequest
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	result, err := db.Exec(db.CloseTicket, payload.TicketID)
+	if err != nil {
+		http.Error(w, "Failed to close ticket", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Failed to retrieve rows affected", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "No ticket found with the given ID", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"status":    "closed",
+		"ticket_id": payload.TicketID,
+	})
+}

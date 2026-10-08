@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { Ticket } from "./TicketTablePage";
 import useClaimTicket from "../hooks/useClaimTicket";
+import useCloseTicket from "../hooks/useCloseTicket";
 import type { User } from "../App";
 
 interface TicketDetailsProps {
   go_back: React.Dispatch<React.SetStateAction<Ticket | null>>;
+  onClosed: () => void;
   setEmail: (email: string) => void;
   user: User;
   priority_level?: number;
@@ -19,6 +21,7 @@ interface TicketDetailsProps {
 
 const TicketDetails = ({
   go_back,
+  onClosed,
   setEmail,
   user,
   priority_level,
@@ -48,6 +51,7 @@ const TicketDetails = ({
   const canManageTicket = user.role === "admin" || user.role === "worker";
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
   const { claimTicket } = useClaimTicket();
+  const { closeTicket } = useCloseTicket();
 
   const handleClaimTicket = async () => {
     console.log(
@@ -69,6 +73,21 @@ const TicketDetails = ({
       }
     } else {
       console.error("Ticket ID or User ID is missing");
+    }
+  };
+
+  const handleCloseTicket = async () => {
+    if (!ticket_id) {
+      console.error("Ticket ID is missing");
+      return;
+    }
+
+    try {
+      await closeTicket(ticket_id);
+      setIsClosed(true);
+      onClosed();
+    } catch (error) {
+      console.error("Error closing ticket:", error);
     }
   };
 
@@ -162,7 +181,7 @@ const TicketDetails = ({
               <button
                 className="rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-slate-400"
                 disabled={isClosed}
-                onClick={() => setIsClosed(true)}
+                onClick={handleCloseTicket}
                 type="button"
               >
                 {isClosed ? "Closed" : "Close ticket"}

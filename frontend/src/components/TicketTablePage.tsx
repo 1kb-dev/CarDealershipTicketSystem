@@ -75,6 +75,14 @@ const TicketTable = ({ user }: TicketTableProps) => {
     (selectedTicket && (
       <TicketDetails
         go_back={setSelectedTicket}
+        onClosed={() => {
+          setTickets((currentTickets) =>
+            currentTickets.filter(
+              (ticket) => ticket.ticket_id !== selectedTicket.ticket_id,
+            ),
+          );
+          setSelectedTicket(null);
+        }}
         setEmail={(email) => {
           setSelectedTicket((ticket) =>
             ticket ? { ...ticket, email, claimed_by_user_mail: email } : ticket,

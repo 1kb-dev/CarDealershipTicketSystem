@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { User } from "../App";
+import CheckSession from "../services/SessionService";
 
 export interface LoginCredentials {
   email: string;
@@ -76,11 +77,14 @@ export const useLogin = ({
       };
 
       if (result.userId !== null) {
-        onSuccess?.({
-          userId: result.userId,
-          email: result.email,
-          role: "",
-        });
+        const sessionUser = await CheckSession();
+        onSuccess?.(
+          sessionUser ?? {
+            userId: result.userId,
+            email: result.email,
+            role: "",
+          },
+        );
       }
       return result;
     } catch (err: unknown) {

@@ -49,7 +49,8 @@ const GetTickets = `
 	FROM public.ticket t
 	JOIN public.app_user u ON u.user_id = t.user_id
 	LEFT JOIN public.app_user claimed_user
-	       ON claimed_user.user_id = t.claimed_by_user_id;
+	       ON claimed_user.user_id = t.claimed_by_user_id
+	WHERE t.isClosed IS NOT TRUE;
 `
 
 const ClaimTicket = `
@@ -57,6 +58,13 @@ const ClaimTicket = `
 	SET claimed_by_user_id = $2
 	WHERE ticket_id = $1
 `
+// Assume ticket table has a coloumn called isClosed
+const CloseTicket = `
+	UPDATE public.ticket
+	SET isClosed = true
+	WHERE ticket_id = $1
+`
+
 
 // Allow query calls from handlers
 func Query(query string, args ...any) (*sql.Rows, error) {
